@@ -3,7 +3,11 @@ import { random } from 'lodash';
 import React from 'react';
 import Square from './Square'
 
-const boardArr = new Array(49).fill(1).map(i => random(1, 7))
+const getNewBoard = function () {
+  return new Array(49).fill(1).map(i => random(1, 7))
+}
+
+const boardArr = getNewBoard()
 
 console.log(boardArr)
 
@@ -16,7 +20,11 @@ export default class Board extends React.Component {
   }
 
   renderSquare(i, index) {
-    return <Square type={i} key={index} />;
+    return <Square
+      type={i}
+      key={index}
+      onClick={console.log}
+    />;
   }
 
   render() {
