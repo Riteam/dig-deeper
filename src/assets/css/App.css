@@ -1,0 +1,77 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  background: #eee;
+}
+.container .squares {
+  width: 100px;
+  height: 100px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  background: #fff no-repeat;
+  background-size: contain;
+  margin: 2px;
+}
+.squares.on {
+  border-color: red;
+}
+.squares.t1 {
+  background-image: url(../img/1.png);
+}
+.squares.t2 {
+  background-image: url(../img/2.png);
+}
+.squares.t3 {
+  background-image: url(../img/3.png);
+}
+.squares.t4 {
+  background-image: url(../img/4.png);
+}
+.squares.t5 {
+  background-image: url(../img/5.png);
+}
+.squares.t6 {
+  background-image: url(../img/6.png);
+}
+.squares.t7 {
+  background-image: url(../img/7.png);
+}
