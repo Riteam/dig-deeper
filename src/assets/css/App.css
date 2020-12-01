@@ -38,21 +38,26 @@
 }
 
 .container {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   background: #eee;
+  border: 2px dashed #ddd;
+  width: 700px;
+  padding: 30px;
+  border-radius: 10px;
+  margin: 10px auto;
 }
 .container .squares {
   width: 100px;
   height: 100px;
   box-sizing: border-box;
-  border: 1px solid transparent;
-  background: #fff no-repeat;
-  background-size: contain;
-  margin: 2px;
+  background: no-repeat center;
+  background-size: 90%;
 }
 .squares.on {
-  border-color: red;
+  position: relative;
+  outline: 2px solid red;
 }
 .squares.t1 {
   background-image: url(../img/1.png);

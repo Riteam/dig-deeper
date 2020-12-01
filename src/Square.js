@@ -9,8 +9,15 @@ export default class Square extends React.Component {
   }
 
   render() {
-    return <div className={`squares ${'t' + this.state.type} ${this.state.on ? 'on' : ''}`} onClick={() => this.setState({ on: true })}>
-      {this.state.type}
+    let classNames = ['squares']
+    if (this.props.type) classNames.push('t' + this.props.type)
+    if (this.props.on) classNames.push('on')
+
+    return <div
+      className={classNames.join(' ')}
+      onClick={this.props.onClick}
+    >
+      {this.props.type + ',' + this.props.index}
     </div>
   }
 }
