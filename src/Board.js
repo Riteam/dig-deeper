@@ -27,11 +27,13 @@ function findTriple(arr, startPoint) {
     row = [], col = [],
     res = []
 
-  let x = startPoint
-  while (arr[x - 1]?.type === target) {
+  let x = startPoint,
+    xMin = (startPoint / 7 | 0) * 7,
+    xMax = ((startPoint / 7 | 0) + 1) * 7 - 1
+  while (x >= xMin && arr[x - 1]?.type === target) {
     x -= 1
   }
-  while (arr[x]?.type === target) {
+  while (x <= xMax && arr[x]?.type === target) {
     row.push(x++)
   }
   if (row.length >= 3) {
@@ -103,7 +105,7 @@ export default class Board extends React.Component {
               });
             }
           })
-        }, 0);
+        }, 500);
         return
       }
     }
