@@ -64,7 +64,7 @@ export default class Board extends React.Component {
     super(props);
     this.state = {
       boardArr: boardArr,
-      selectedIndex: null
+      selectedIndex: null,
     };
 
   }
@@ -75,8 +75,7 @@ export default class Board extends React.Component {
 
     let sIndex = this.state.selectedIndex
 
-    console.log(index, sIndex, index - sIndex);
-    if (this.state.boardArr[index]) {
+    if (this.state.boardArr[sIndex]) {
       if (index === sIndex) {
         // 取消选择
         this.setState({ selectedIndex: null })
@@ -93,7 +92,7 @@ export default class Board extends React.Component {
         });
         setTimeout(() => {
           this.digTriple([index, sIndex])
-        }, 500);
+        }, 1000);
         return
       }
     }
@@ -104,25 +103,35 @@ export default class Board extends React.Component {
 
   // 寻找并消灭三连！
   digTriple(posArr = [...this.state.boardArr]) {
+    console.log('%c* digTriple', 'color: red;');
+
+    let needDestroyPos = []
+
     posArr.forEach(i => {
       let pos = findTriple(this.state.boardArr, i)
-      console.log(pos);
+      // console.log(pos);
       if (pos.length >= 3) {
-        let newBoardArr = [...this.state.boardArr]
-        pos.forEach(j => newBoardArr[j].type = 0)
-        this.setState({
-          boardArr: newBoardArr,
-          selectedIndex: null
-        });
-        setTimeout(() => {
-          this.dropDown(pos)
-        }, 300);
+        needDestroyPos = needDestroyPos.concat(pos)
       }
     })
+
+    if (needDestroyPos.length === 0) return false
+
+    let newBoardArr = [...this.state.boardArr]
+
+    needDestroyPos.forEach(j => newBoardArr[j].type = 0)
+    this.setState({
+      boardArr: newBoardArr,
+      selectedIndex: null
+    });
+    setTimeout(() => {
+      this.dropDown(needDestroyPos)
+    }, 1000);
   }
 
   // 下落
   dropDown(posArr) {
+    console.log('%c* dropDown', 'color: red;', posArr);
     let endPos = new Set(),
       emptyArrTotal = [],
       newBoardArr = [...this.state.boardArr]
@@ -155,11 +164,11 @@ export default class Board extends React.Component {
 
     setTimeout(() => {
       this.fillSquire(emptyArrTotal)
-    }, 200);
+    }, 1000);
   }
 
   fillSquire(posArr) {
-    console.log(posArr);
+    console.log('%c* fillSquire', 'color: red;', posArr);
     let newBoardArr = [...this.state.boardArr]
     for (let pos of posArr) {
       newBoardArr[pos] = getNewItem()
@@ -167,12 +176,17 @@ export default class Board extends React.Component {
     this.setState({
       boardArr: newBoardArr
     })
+
+    setTimeout(() => {
+      this.digTriple(posArr)
+    }, 1000);
   }
 
   renderSquare(i, index) {
     return <Square
       type={i.type}
       index={index}
+      id={i.id}
       on={index === this.state.selectedIndex}
       onClick={() => this.clickHandler(index)}
 

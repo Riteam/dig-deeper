@@ -44,16 +44,28 @@
   background: #eee;
   border: 2px dashed #ddd;
   width: 700px;
+  height: 700px;
   padding: 30px;
   border-radius: 10px;
   margin: 10px auto;
+  
 }
 .container .squares {
+  position: absolute;
   width: 100px;
   height: 100px;
   box-sizing: border-box;
   background: no-repeat center;
   background-size: 90%;
+  transition: transform 300ms linear;
+}
+.testfont {
+  font-size: 12px;
+  background: #fff;
+  color: purple;
+  width: fit-content;
+  text-align: left;
+  opacity: .8;
 }
 .squares.on {
   position: relative;
