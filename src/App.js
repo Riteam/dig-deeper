@@ -2,10 +2,12 @@ import logo from './logo.svg';
 import './assets/css/App.css';
 
 import Board from './Board'
+import flip from './flip'
 
 function App() {
   return (
     <div className="App">
+      {/* <flip></flip> */}
       <Board></Board>
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />

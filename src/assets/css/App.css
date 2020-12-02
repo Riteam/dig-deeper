@@ -51,7 +51,7 @@
   
 }
 .container .squares {
-  position: absolute;
+  /* position: absolute; */
   width: 100px;
   height: 100px;
   box-sizing: border-box;
@@ -91,4 +91,17 @@
 }
 .squares.t7 {
   background-image: url(../img/7.png);
+}
+
+.cont {
+  background: #ddd;
+  padding: 10px;
+  display: flex;
+}
+.cont>div{
+  width: 100px;
+  height: 100px;
+  background: #ccc;
+  color: #fff;
+  font-size: 50px;
 }

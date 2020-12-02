@@ -82,7 +82,8 @@ export default class Board extends React.Component {
         return
       }
       let distance = Math.abs(index - sIndex)
-      if (distance === 7 || distance === 1) {
+      // if (distance === 7 || distance === 1) {
+      if (true) {
         // 是上下左右的相邻格子，可以交换
         let newBoardArr = [...this.state.boardArr]
         swap(newBoardArr, sIndex, index)
@@ -91,7 +92,7 @@ export default class Board extends React.Component {
           selectedIndex: null
         });
         setTimeout(() => {
-          this.digTriple([index, sIndex])
+          // this.digTriple([index, sIndex])
         }, 1000);
         return
       }
