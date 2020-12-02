@@ -76,7 +76,7 @@ export default class Board extends React.Component {
     let sIndex = this.state.selectedIndex
 
     console.log(index, sIndex, index - sIndex);
-    if (sIndex) {
+    if (this.state.boardArr[index]) {
       if (index === sIndex) {
         // 取消选择
         this.setState({ selectedIndex: null })
@@ -92,19 +92,7 @@ export default class Board extends React.Component {
           selectedIndex: null
         });
         setTimeout(() => {
-          [index, sIndex].forEach(i => {
-            let pos = findTriple(newBoardArr, i)
-            console.log(pos);
-            if (pos.length >= 3) {
-              console.log(123);
-              let newBoardArr = [...this.state.boardArr]
-              pos.forEach(j => newBoardArr[j].type = 0)
-              this.setState({
-                boardArr: newBoardArr,
-                selectedIndex: null
-              });
-            }
-          })
+          this.digTriple([index, sIndex])
         }, 500);
         return
       }
@@ -112,6 +100,73 @@ export default class Board extends React.Component {
 
     // 选中格子
     this.setState({ selectedIndex: index })
+  }
+
+  // 寻找并消灭三连！
+  digTriple(posArr = [...this.state.boardArr]) {
+    posArr.forEach(i => {
+      let pos = findTriple(this.state.boardArr, i)
+      console.log(pos);
+      if (pos.length >= 3) {
+        let newBoardArr = [...this.state.boardArr]
+        pos.forEach(j => newBoardArr[j].type = 0)
+        this.setState({
+          boardArr: newBoardArr,
+          selectedIndex: null
+        });
+        setTimeout(() => {
+          this.dropDown(pos)
+        }, 300);
+      }
+    })
+  }
+
+  // 下落
+  dropDown(posArr) {
+    let endPos = new Set(),
+      emptyArrTotal = [],
+      newBoardArr = [...this.state.boardArr]
+    for (let pos of posArr) {
+      endPos.add(42 + pos % 7)
+    }
+    // 得到底部坐标
+    endPos = [...endPos]
+    // 自底部向上遍历
+    for (let epos of endPos) {
+      let emptyArr = []
+      while (epos >= 0) {
+        if (newBoardArr[epos].type === 0) {
+          emptyArr.push(epos)
+          epos -= 7
+        }
+        else if (emptyArr.length > 0) {
+          let pos = emptyArr.shift()
+          swap(newBoardArr, pos, epos)
+        } else {
+          epos -= 7
+        }
+      }
+      emptyArrTotal = emptyArrTotal.concat(emptyArr)
+    }
+    console.log(endPos);
+    this.setState({
+      boardArr: newBoardArr
+    })
+
+    setTimeout(() => {
+      this.fillSquire(emptyArrTotal)
+    }, 200);
+  }
+
+  fillSquire(posArr) {
+    console.log(posArr);
+    let newBoardArr = [...this.state.boardArr]
+    for (let pos of posArr) {
+      newBoardArr[pos] = getNewItem()
+    }
+    this.setState({
+      boardArr: newBoardArr
+    })
   }
 
   renderSquare(i, index) {
