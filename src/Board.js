@@ -2,6 +2,7 @@ import { random } from 'lodash';
 
 import React from 'react';
 import Square from './Square'
+import myEventBus from './assets/js/bus.js'
 
 let idCounter = 0
 
@@ -18,6 +19,10 @@ function getNewItem(dropHeight = 0) {
     dropHeight,
     tripled: false
   }
+}
+
+function nextFrame(fn) {
+  setTimeout(fn, 0);
 }
 
 function swap(arr, a, b) {
@@ -71,6 +76,8 @@ export default class Board extends React.Component {
       selectedIndex: null,
     };
 
+    // this.stateData = null
+    this.stateFlag = 0
   }
 
   clickHandler(index) {
@@ -95,9 +102,19 @@ export default class Board extends React.Component {
           boardArr: newBoardArr,
           selectedIndex: null
         });
-        setTimeout(() => {
+
+        myEventBus.once('switchEnd', () => {
+          console.log(45666);
           this.digTriple([index, sIndex])
-        }, 200);
+        })
+        // this.stateData = [index, sIndex]
+        this.stateFlag = 1
+
+        // do switch animation...
+
+        // setTimeout(() => {
+        //   this.digTriple([index, sIndex])
+        // }, 200);
         return
       }
     }
@@ -106,9 +123,19 @@ export default class Board extends React.Component {
     this.setState({ selectedIndex: index })
   }
 
+  // when switch animation end -> digTriple
+  switchEndHandler(index) {
+    console.log(55, index);
+    myEventBus.emit('switchEnd', index)
+    // if (this.stateFlag === 1) {
+    //   this.digTriple(this.stateData)
+    // }
+  }
+
   // 寻找并消灭三连！
   digTriple(posArr = [...this.state.boardArr]) {
     console.log('%c* digTriple', 'color: red;');
+    this.stateFlag = 2
 
     let needDestroyPos = []
 
@@ -121,6 +148,7 @@ export default class Board extends React.Component {
     })
 
     if (needDestroyPos.length === 0) {
+      this.stateFlag = 0
       console.log('失败');
       return false
     }
@@ -132,15 +160,24 @@ export default class Board extends React.Component {
       boardArr: newBoardArr,
       selectedIndex: null
     });
+    myEventBus.once('destroyEnd', () => {
+      console.log(66654);
+      this.dropDown(needDestroyPos)
+    })
   }
 
-  switchEndHandler(index) {
-    console.log(55, index);
+  destroyEndHandler(index) {
+    console.log(77, index);
+    myEventBus.emit('destroyEnd', index)
+    // if (this.stateFlag === 2) {
+    //   this.digTriple(this.stateData)
+    // }
   }
 
   // 下落
   dropDown(posArr) {
     console.log('%c* dropDown', 'color: red;', posArr);
+    this.stateFlag = 3
 
     let endPos = new Set(),
       emptyArrTotal = [],
@@ -173,18 +210,24 @@ export default class Board extends React.Component {
     })
 
     setTimeout(() => {
-      this.fillSquire(emptyArrTotal)
+      this.fillSquire(emptyArrTotal, posArr)
     }, 0);
   }
 
-  fillSquire(posArr) {
+  fillSquire(posArr, extraArr) {
     console.log('%c* fillSquire', 'color: red;', posArr);
 
-    let dropCountPerCol = {}
+    let dropCountPerCol = {},
+      longestCol = 0,
+      longestColCount = 0
     for (let pos of posArr) {
       let col = pos % 7
       if (col in dropCountPerCol) dropCountPerCol[col]++
       else dropCountPerCol[col] = 1
+      if (dropCountPerCol[col] > longestColCount) {
+        longestCol = col
+        longestColCount = dropCountPerCol[col]
+      }
     }
     let newBoardArr = [...this.state.boardArr]
     for (let pos of posArr) {
@@ -194,9 +237,21 @@ export default class Board extends React.Component {
       boardArr: newBoardArr
     })
 
-    setTimeout(() => {
-      this.digTriple(posArr)
-    }, 2000);
+
+    myEventBus.on('fillEnd', (index) => {
+      console.log(9090, index, longestCol);
+      if (index % 7 === longestCol) {
+        // 需等到最后一个掉落再触发
+        myEventBus.off('fillEnd')
+        // console.log(myEventBus.fillEnd);
+        this.digTriple(posArr.concat(extraArr))
+      }
+    })
+  }
+
+  fillEndHandler(index) {
+    console.log(88, index);
+    myEventBus.emit('fillEnd', index)
   }
 
   renderSquare(i, index) {
@@ -206,6 +261,8 @@ export default class Board extends React.Component {
       on={index === this.state.selectedIndex}
       onClick={() => this.clickHandler(index)}
       onSwitchEnd={() => this.switchEndHandler(index)}
+      onDestroyEnd={(e) => this.destroyEndHandler({ e, index })}
+      onFillEnd={() => this.fillEndHandler(index)}
 
       key={i.id}
     />;
@@ -213,11 +270,14 @@ export default class Board extends React.Component {
 
   render() {
     return (
-      <div className="container">
-        {
-          this.state.boardArr.map((item, index) => this.renderSquare(item, index))
-        }
-      </div>
+      <>
+        <h4>state: {this.stateFlag}</h4>
+        <div className="container">
+          {
+            this.state.boardArr.map((item, index) => this.renderSquare(item, index))
+          }
+        </div>
+      </>
     )
   }
 }

@@ -13,6 +13,7 @@ export default class Square extends React.Component {
   componentDidMount() {
     let { id, index, dropHeight } = this.props
     if (id > 49 && dropHeight > 0) {
+      console.log(123, dropHeight);
       console.log(index);
       let el = this.myRef.current
       // let Y = index / 7 | 0
@@ -25,7 +26,10 @@ export default class Square extends React.Component {
           duration: 85 * dropHeight,
           easing: 'ease-in'
         }
-      );
+      )
+        .finished.then(res => {
+          this.props.onFillEnd(this.props.index)
+        });
     }
   }
 
@@ -45,7 +49,7 @@ export default class Square extends React.Component {
       // );
     }
     else if (this.props.index !== prevProp.index) {
-      // switch animation
+      // switch & drop animation
       let [x1, y1] = [prevProp.index % 7, prevProp.index / 7 | 0],
         [x2, y2] = [this.props.index % 7, this.props.index / 7 | 0]
       console.log(22, this.props.id, prevProp.index + '=>' + this.props.index);
@@ -87,6 +91,7 @@ export default class Square extends React.Component {
       style={style}
       className={classNames.join(' ')}
       onClick={this.props.onClick}
+      onTransitionEnd={this.props.onDestroyEnd}
     >
       <p className="testfont">
         type:{this.props.type} <br />
