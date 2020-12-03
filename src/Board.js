@@ -30,7 +30,7 @@ function findTriple(arr, startPoint) {
   let x = startPoint,
     xMin = (startPoint / 7 | 0) * 7,
     xMax = ((startPoint / 7 | 0) + 1) * 7 - 1
-  while (x >= xMin && arr[x - 1]?.type === target) {
+  while ((x - 1) >= xMin && arr[x - 1]?.type === target) {
     x -= 1
   }
   while (x <= xMax && arr[x]?.type === target) {
@@ -92,8 +92,8 @@ export default class Board extends React.Component {
           selectedIndex: null
         });
         setTimeout(() => {
-          // this.digTriple([index, sIndex])
-        }, 1000);
+          this.digTriple([index, sIndex])
+        }, 300);
         return
       }
     }
@@ -127,7 +127,7 @@ export default class Board extends React.Component {
     });
     setTimeout(() => {
       this.dropDown(needDestroyPos)
-    }, 1000);
+    }, 100);
   }
 
   // 下落
@@ -164,7 +164,7 @@ export default class Board extends React.Component {
     })
 
     setTimeout(() => {
-      this.fillSquire(emptyArrTotal)
+      // this.fillSquire(emptyArrTotal)
     }, 1000);
   }
 

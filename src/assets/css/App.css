@@ -48,6 +48,7 @@
   padding: 30px;
   border-radius: 10px;
   margin: 10px auto;
+  user-select: none;
   
 }
 .container .squares {

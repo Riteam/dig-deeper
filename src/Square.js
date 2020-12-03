@@ -16,14 +16,17 @@ export default class Square extends React.Component {
         [x2, y2] = [this.props.index % 7, this.props.index / 7 | 0]
       console.log(22, this.props.id, prevProp.index + '=>' + this.props.index);
       let el = this.myRef.current
-      console.log(el, x1, y1);
       el.animate(
         [
           { transform: `translate(${(x1 - x2) * 100}px, ${(y1 - y2) * 100}px)` },
           { transform: `translate(0)` }
         ],
-        300
+        {
+          duration: (Math.abs(x1 - x2) + Math.abs(y1 - y2)) * 75,
+          easing: 'ease-in'
+        }
       );
+      console.log(x1 - x2, y1 - y2, (Math.abs(x1 - x2) + Math.abs(y1 - y2)) * 100);
     }
   }
 
