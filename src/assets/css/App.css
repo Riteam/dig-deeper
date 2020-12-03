@@ -58,7 +58,12 @@
   box-sizing: border-box;
   background: no-repeat center;
   background-size: 90%;
-  transition: transform 300ms linear;
+  transition: transform 300ms cubic-bezier(.6, -.28, .735, .045),
+  opacity 100ms linear 200ms;
+}
+.squares.tripled {
+  transform: rotate(-180deg) scale(0.01);
+  opacity: 0;
 }
 .testfont {
   font-size: 12px;

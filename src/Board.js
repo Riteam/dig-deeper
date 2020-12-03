@@ -6,13 +6,17 @@ import Square from './Square'
 let idCounter = 0
 
 function getNewBoard() {
-  return new Array(49).fill(1).map(getNewItem)
+  return new Array(49).fill(1).map(i => {
+    return getNewItem()
+  })
 }
 
-function getNewItem() {
+function getNewItem(dropHeight = 0) {
   return {
     type: random(1, 7),
-    id: ++idCounter
+    id: ++idCounter,
+    dropHeight,
+    tripled: false
   }
 }
 
@@ -71,7 +75,7 @@ export default class Board extends React.Component {
 
   clickHandler(index) {
     // 空格不处理
-    if (this.state.boardArr[index].type === 0) return false
+    if (this.state.boardArr[index].tripled) return false
 
     let sIndex = this.state.selectedIndex
 
@@ -93,7 +97,7 @@ export default class Board extends React.Component {
         });
         setTimeout(() => {
           this.digTriple([index, sIndex])
-        }, 300);
+        }, 200);
         return
       }
     }
@@ -116,23 +120,28 @@ export default class Board extends React.Component {
       }
     })
 
-    if (needDestroyPos.length === 0) return false
+    if (needDestroyPos.length === 0) {
+      console.log('失败');
+      return false
+    }
 
     let newBoardArr = [...this.state.boardArr]
 
-    needDestroyPos.forEach(j => newBoardArr[j].type = 0)
+    needDestroyPos.forEach(j => newBoardArr[j].tripled = true)
     this.setState({
       boardArr: newBoardArr,
       selectedIndex: null
     });
-    setTimeout(() => {
-      this.dropDown(needDestroyPos)
-    }, 100);
+  }
+
+  switchEndHandler(index) {
+    console.log(55, index);
   }
 
   // 下落
   dropDown(posArr) {
     console.log('%c* dropDown', 'color: red;', posArr);
+
     let endPos = new Set(),
       emptyArrTotal = [],
       newBoardArr = [...this.state.boardArr]
@@ -145,7 +154,7 @@ export default class Board extends React.Component {
     for (let epos of endPos) {
       let emptyArr = []
       while (epos >= 0) {
-        if (newBoardArr[epos].type === 0) {
+        if (newBoardArr[epos].tripled) {
           emptyArr.push(epos)
           epos -= 7
         }
@@ -164,15 +173,22 @@ export default class Board extends React.Component {
     })
 
     setTimeout(() => {
-      // this.fillSquire(emptyArrTotal)
-    }, 1000);
+      this.fillSquire(emptyArrTotal)
+    }, 0);
   }
 
   fillSquire(posArr) {
     console.log('%c* fillSquire', 'color: red;', posArr);
+
+    let dropCountPerCol = {}
+    for (let pos of posArr) {
+      let col = pos % 7
+      if (col in dropCountPerCol) dropCountPerCol[col]++
+      else dropCountPerCol[col] = 1
+    }
     let newBoardArr = [...this.state.boardArr]
     for (let pos of posArr) {
-      newBoardArr[pos] = getNewItem()
+      newBoardArr[pos] = getNewItem(dropCountPerCol[pos % 7])
     }
     this.setState({
       boardArr: newBoardArr
@@ -180,16 +196,16 @@ export default class Board extends React.Component {
 
     setTimeout(() => {
       this.digTriple(posArr)
-    }, 1000);
+    }, 2000);
   }
 
   renderSquare(i, index) {
     return <Square
-      type={i.type}
+      {...i}
       index={index}
-      id={i.id}
       on={index === this.state.selectedIndex}
       onClick={() => this.clickHandler(index)}
+      onSwitchEnd={() => this.switchEndHandler(index)}
 
       key={i.id}
     />;

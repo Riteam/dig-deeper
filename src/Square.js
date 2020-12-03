@@ -10,23 +10,59 @@ export default class Square extends React.Component {
     this.myRef = React.createRef();
   }
 
+  componentDidMount() {
+    let { id, index, dropHeight } = this.props
+    if (id > 49 && dropHeight > 0) {
+      console.log(index);
+      let el = this.myRef.current
+      // let Y = index / 7 | 0
+      el.animate(
+        [
+          { transform: `translateY(-${dropHeight * 100}px)` },
+          { transform: `translateY(0)` }
+        ],
+        {
+          duration: 85 * dropHeight,
+          easing: 'ease-in'
+        }
+      );
+    }
+  }
+
   componentDidUpdate(prevProp) {
-    if (this.props.index !== prevProp.index) {
+    let el = this.myRef.current
+
+    if (this.props.tripled) {
+      // el.animate(
+      //   [
+      //     { transform: `rotate(-90deg) scale()` },
+      //     { transform: `translate(0)` }
+      //   ],
+      //   {
+      //     duration: (Math.abs(x1 - x2) + Math.abs(y1 - y2)) * 85,
+      //     easing: 'ease-in'
+      //   }
+      // );
+    }
+    else if (this.props.index !== prevProp.index) {
+      // switch animation
       let [x1, y1] = [prevProp.index % 7, prevProp.index / 7 | 0],
         [x2, y2] = [this.props.index % 7, this.props.index / 7 | 0]
       console.log(22, this.props.id, prevProp.index + '=>' + this.props.index);
-      let el = this.myRef.current
       el.animate(
         [
           { transform: `translate(${(x1 - x2) * 100}px, ${(y1 - y2) * 100}px)` },
           { transform: `translate(0)` }
         ],
         {
-          duration: (Math.abs(x1 - x2) + Math.abs(y1 - y2)) * 75,
+          duration: (Math.abs(x1 - x2) + Math.abs(y1 - y2)) * 85,
           easing: 'ease-in'
         }
-      );
-      console.log(x1 - x2, y1 - y2, (Math.abs(x1 - x2) + Math.abs(y1 - y2)) * 100);
+      )
+        .finished.then(res => {
+          this.props.onSwitchEnd(this.props.index)
+        })
+      // console.log(x1 - x2, y1 - y2, (Math.abs(x1 - x2) + Math.abs(y1 - y2)) * 100);
     }
   }
 
@@ -43,6 +79,7 @@ export default class Square extends React.Component {
     }
 
     if (this.props.type) classNames.push('t' + this.props.type)
+    if (this.props.tripled) classNames.push('tripled')
     if (this.props.on) classNames.push('on')
 
     return <div
