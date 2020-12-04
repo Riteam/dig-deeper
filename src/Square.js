@@ -52,7 +52,6 @@ export default class Square extends React.Component {
       // switch & drop animation
       let [x1, y1] = [prevProp.index % 7, prevProp.index / 7 | 0],
         [x2, y2] = [this.props.index % 7, this.props.index / 7 | 0]
-      console.log(22, this.props.id, prevProp.index + '=>' + this.props.index);
       el.animate(
         [
           { transform: `translate(${(x1 - x2) * 100}px, ${(y1 - y2) * 100}px)` },

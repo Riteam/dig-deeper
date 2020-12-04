@@ -25,6 +25,38 @@ function nextFrame(fn) {
   setTimeout(fn, 0);
 }
 
+// get Manhattan Distance
+function getManDis(p1, p2) {
+  const len = 7
+  let [x1, y1] = [p1 % len, p1 / len | 0]
+  let [x2, y2] = [p2 % len, p2 / len | 0]
+
+  return Math.abs(x1 - x2) + Math.abs(y1 - y2)
+}
+
+// 下标转坐标
+function index2Coord(index) {
+  const len = 7
+  return [index % len, index / len | 0]
+}
+
+// 获得形状的交点
+function getShapeCenter(arr) {
+  const len = 7
+  for (let i of arr) {
+    let x1 = i % len, y1 = i / len | 0, ji = 0
+    for (; ji < arr.length; ji++) {
+      let j = arr[ji]
+      if (i === j) continue
+      let x2 = j % len, y2 = j / len | 0
+      if (Math.abs(x2 - x1) === 0 || Math.abs(y2 - y1) === 0) continue
+      else break
+    }
+    if (ji === arr.length) return i
+  }
+  return false
+}
+
 function swap(arr, a, b) {
   let temp = arr[a]
   arr[a] = arr[b]
@@ -33,35 +65,55 @@ function swap(arr, a, b) {
 
 function findTriple(arr, startPoint) {
   let target = arr[startPoint].type,
-    row = [], col = [],
     res = []
 
-  let x = startPoint,
-    xMin = (startPoint / 7 | 0) * 7,
-    xMax = ((startPoint / 7 | 0) + 1) * 7 - 1
-  while ((x - 1) >= xMin && arr[x - 1]?.type === target) {
-    x -= 1
-  }
-  while (x <= xMax && arr[x]?.type === target) {
-    row.push(x++)
-  }
-  if (row.length >= 3) {
-    res = res.concat(row)
-  }
-
-  let y = startPoint
-  while (arr[y - 7]?.type === target) {
-    y -= 7
-  }
-  while (arr[y]?.type === target) {
-    col.push(y)
-    y += 7
-  }
-  if (col.length >= 3) {
-    res = res.concat(col)
+  function findAtX(pos) {
+    let x = pos, row = [],
+      xMin = (pos / 7 | 0) * 7,
+      xMax = xMin + 6
+    while ((x - 1) >= xMin && arr[x - 1]?.type === target) {
+      x -= 1
+    }
+    while (x <= xMax && arr[x]?.type === target) {
+      row.push(x++)
+    }
+    return row
   }
 
-  return [...new Set(res)]
+  function findAtY(pos) {
+    let y = pos, col = []
+    while (arr[y - 7]?.type === target) {
+      y -= 7
+    }
+    while (arr[y]?.type === target) {
+      col.push(y)
+      y += 7
+    }
+    return col
+  }
+
+  let firstXArr = findAtX(startPoint),
+    firstYArr = findAtY(startPoint)
+
+  console.log(firstXArr, firstYArr);
+
+  if (firstXArr.length >= 3) {
+    res = res.concat(firstXArr)
+    firstXArr.forEach(xi => {
+      let YArr = findAtY(xi)
+      console.log(4646, YArr);
+      if (YArr.length >= 3) res = res.concat(YArr)
+    })
+  } else if (firstYArr.length >= 3) {
+    res = res.concat(firstYArr)
+    firstYArr.forEach(yi => {
+      let XArr = findAtX(yi)
+      console.log(4646, XArr);
+      if (XArr.length >= 3) res = res.concat(XArr)
+    })
+  }
+  console.log(4747, res);
+  return []
 }
 
 const boardArr = getNewBoard()
@@ -210,11 +262,12 @@ export default class Board extends React.Component {
     })
 
     setTimeout(() => {
+      // 填充结束后需要下落方块和填充方块一起检查是否有三连
       this.fillSquire(emptyArrTotal, posArr)
     }, 0);
   }
 
-  fillSquire(posArr, extraArr) {
+  fillSquire(posArr, dropedPosArr) {
     console.log('%c* fillSquire', 'color: red;', posArr);
 
     let dropCountPerCol = {},
@@ -244,7 +297,7 @@ export default class Board extends React.Component {
         // 需等到最后一个掉落再触发
         myEventBus.off('fillEnd')
         // console.log(myEventBus.fillEnd);
-        this.digTriple(posArr.concat(extraArr))
+        this.digTriple(posArr.concat(dropedPosArr))
       }
     })
   }
