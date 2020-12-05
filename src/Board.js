@@ -143,6 +143,9 @@ export default class Board extends React.Component {
         // 是上下左右的相邻格子，可以交换
         let newBoardArr = [...this.state.boardArr]
         swap(newBoardArr, sIndex, index)
+
+
+
         this.setState({
           boardArr: newBoardArr,
           selectedIndex: null
@@ -150,7 +153,11 @@ export default class Board extends React.Component {
 
         myEventBus.once('switchEnd', () => {
           console.log(45666);
-          this.digTriple([index, sIndex], true)
+          if (newBoardArr[index].type === 8) {
+            this.dragonBreathBurst(index, newBoardArr[sIndex].type)
+          } else {
+            this.digTriple([index, sIndex], true)
+          }
         })
         // this.stateData = [index, sIndex]
         this.stateFlag = 1
@@ -175,6 +182,27 @@ export default class Board extends React.Component {
     // if (this.stateFlag === 1) {
     //   this.digTriple(this.stateData)
     // }
+  }
+
+  // 龙息瓶爆炸！！
+  dragonBreathBurst(selfPos, targetType) {
+    let needDestroyPosArr = [selfPos]
+    let newBoardArr = this.state.boardArr.map((item, index) => {
+      if (item.type === targetType) {
+        item.tripled = true
+        needDestroyPosArr.push(index)
+      }
+      return item
+    })
+    newBoardArr[selfPos].tripled = true
+    this.setState({
+      boardArr: newBoardArr,
+      selectedIndex: null
+    });
+    myEventBus.once('destroyEnd', () => {
+      console.log(9988);
+      this.dropDown(needDestroyPosArr)
+    })
   }
 
   // 寻找并消灭三连！
@@ -203,14 +231,14 @@ export default class Board extends React.Component {
       this.stateFlag = 0
       console.log('失败');
       if (isSwitch) {
-        let newBoardArr = [...this.state.boardArr]
-        swap(newBoardArr, posArr[0], posArr[1])
-        setTimeout(() => {
-          this.setState({
-            boardArr: newBoardArr,
-            selectedIndex: null
-          });
-        }, 75);
+        // let newBoardArr = [...this.state.boardArr]
+        // swap(newBoardArr, posArr[0], posArr[1])
+        // setTimeout(() => {
+        //   this.setState({
+        //     boardArr: newBoardArr,
+        //     selectedIndex: null
+        //   });
+        // }, 75);
       }
       return false
     }
@@ -219,7 +247,8 @@ export default class Board extends React.Component {
       needDestroyPosArr = []
 
     for (let [core, posSet] of needDestroyShape) {
-      if (posSet.size <= 5) {
+      console.log(posSet);
+      if (posSet.size <= 4) {
         // 正常消除
         posSet.forEach(i => newBoardArr[i].tripled = true)
 
@@ -288,12 +317,11 @@ export default class Board extends React.Component {
     })
 
     setTimeout(() => {
-      // 填充结束后需要下落方块和填充方块一起检查是否有三连
-      this.fillSquire(emptyArrTotal, posArr)
+      this.fillSquire(emptyArrTotal)
     }, 0);
   }
 
-  fillSquire(posArr, dropedPosArr) {
+  fillSquire(posArr) {
     console.log('%c* fillSquire', 'color: red;', posArr);
 
     let dropCountPerCol = {},
@@ -323,7 +351,8 @@ export default class Board extends React.Component {
         // 需等到最后一个掉落再触发
         myEventBus.off('fillEnd')
         // console.log(myEventBus.fillEnd);
-        this.digTriple(posArr.concat(dropedPosArr))
+        // this.digTriple(posArr.concat(dropedPosArr))
+        // 全部检查
       }
     })
   }

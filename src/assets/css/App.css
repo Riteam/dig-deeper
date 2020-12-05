@@ -71,7 +71,7 @@ body {
   height: 100px;
   box-sizing: border-box;
   background: no-repeat center;
-  background-size: 90%;
+  background-size: 96px;
   transition: transform .3s cubic-bezier(.6, -.28, .735, .045),
   opacity linear .1s .2s;
 }

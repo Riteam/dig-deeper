@@ -1,4 +1,21 @@
 import React from 'react';
+import img1 from './assets/img/1.png'
+import img2 from './assets/img/2.png'
+import img3 from './assets/img/3.png'
+import img4 from './assets/img/4.png'
+import img5 from './assets/img/5.png'
+import img6 from './assets/img/6.png'
+import img7 from './assets/img/7.png'
+
+const imgs = {
+  1: img1,
+  2: img2,
+  3: img3,
+  4: img4,
+  5: img5,
+  6: img6,
+  7: img7,
+}
 
 // 下标转坐标
 function index2Coord(index) {
@@ -90,16 +107,21 @@ export default class Square extends React.Component {
           fill: 'forwards'
         })
     } else if (this.props.type === 8 && prevProp.type !== 8) {
-      console.log(this.props, '！！！')
+      console.log(this.props, prevProp.type, '！！！')
       el.animate([
         {
-          transform: `scale(1) translateZ(2px)`, backgoundImage: `url(../img/${prevProp.type}.png)`
+          transform: `translateY(0) scale(1)`,
+          backgroundImage: `url(${imgs[prevProp.type]})`,
+          zIndex: 3
         },
         {
-          transform: `scale(0) translateZ(2px)`, backgoundImage: `url(../img/${this.props.type}.png)`
+          transform: `translateY(50px) scale(0)`,
+          zIndex: 3,
+          offset: 0.8,
         },
         {
-          transform: `scale(1) translateZ(2px)`
+          transform: `translateY(0) scale(1)`,
+          zIndex: 3
         },
       ],
         {
@@ -111,6 +133,11 @@ export default class Square extends React.Component {
     }
   }
 
+  tnHandler = (e) => {
+    if (e.propertyName === 'transform') {
+      this.props.onDestroyEnd()
+    }
+  }
   render() {
     // if (this.props.index <= 1) {
     //   // console.log(11, this.props);
@@ -129,13 +156,13 @@ export default class Square extends React.Component {
     >
       <div
         ref={this.myRef}
-        onTransitionEnd={this.props.onDestroyEnd}
+        onTransitionEnd={this.tnHandler}
         className={classNames.join(' ')}></div>
-      <p className="testfont">
+      {/* <p className="testfont">
         type:{this.props.type} <br />
         index:{this.props.index} <br />
         id:{this.props.id}
-      </p>
+      </p> */}
     </div>
   }
 }
