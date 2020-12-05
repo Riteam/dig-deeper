@@ -37,22 +37,36 @@
   }
 }
 
+body {
+  background: url(../img/dirt.png);
+}
 .container {
   position: relative;
   display: flex;
   flex-wrap: wrap;
-  background: #eee;
-  border: 2px dashed #ddd;
+  /* background: #eee; */
+  /* border: 2px dashed #ddd; */
   width: 700px;
   height: 700px;
   padding: 30px;
-  border-radius: 10px;
+  border-radius: 6px;
   margin: 10px auto;
   user-select: none;
-  
+  /* background-size: 100px; */
 }
 .container .squares {
+  position: relative;
   /* position: absolute; */
+  width: 100px;
+  height: 100px;
+  box-sizing: border-box;
+  background: rgba(0,0,0,.4);
+}
+.container .squares:nth-child(odd) {
+  background: rgba(0,0,0,.3);
+}
+.container .squares .icon {
+  position: relative;
   width: 100px;
   height: 100px;
   box-sizing: border-box;
@@ -61,45 +75,71 @@
   transition: transform .3s cubic-bezier(.6, -.28, .735, .045),
   opacity linear .1s .2s;
 }
-.squares.tripled {
+.squares .icon.tripled {
   transform: rotate(-45deg) scale(0.01);
   opacity: 0;
 }
+.squares .icon.to {
+  opacity: 0;
+}
 .testfont {
+  position: absolute;
+  left: 0;
+  top: 0;
   font-size: 12px;
   background: #fff;
   color: purple;
   width: fit-content;
   text-align: left;
   opacity: .8;
+  z-index: 10;
 }
 .squares.on {
   position: relative;
   outline: 2px solid red;
 }
-.squares.t1 {
+.squares .icon.t1 {
   background-image: url(../img/1.png);
 }
-.squares.t2 {
+.squares .icon.t2 {
   background-image: url(../img/2.png);
 }
-.squares.t3 {
+.squares .icon.t3 {
   background-image: url(../img/3.png);
 }
-.squares.t4 {
+.squares .icon.t4 {
   background-image: url(../img/4.png);
 }
-.squares.t5 {
+.squares .icon.t5 {
   background-image: url(../img/5.png);
 }
-.squares.t6 {
+.squares .icon.t6 {
   background-image: url(../img/6.png);
 }
-.squares.t7 {
+.squares .icon.t7 {
   background-image: url(../img/7.png);
+}
+.squares .icon.t8 {
+  background-image: url(../img/8.png);
+  animation: shining infinite both 1s;
+}
+
+@keyframes shining {
+  0% {
+    filter: drop-shadow(0 0 5px #fff);
+  }
+  30% {
+    filter: drop-shadow(0 0 8px #fff);
+  }
+  100% {
+    filter: drop-shadow(0 0 5px #fff);
+  }
 }
 
 .cont {
+  position: absolute;
+  left: 0;
+  top: 0;
   background: #ddd;
   padding: 10px;
   display: flex;

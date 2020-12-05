@@ -2,14 +2,19 @@ import logo from './logo.svg';
 import './assets/css/App.css';
 
 import Board from './Board'
-import flip from './flip'
+import messagePanel from './flip'
 
+import { useState } from 'react';
 function App() {
+  // let [score, setScore] = useState(0)
+  // function ScoreHandler(newScore) {
+  //   setScore(prev => prev + newScore)
+  // }
   return (
     <div className="App">
-      {/* <flip></flip> */}
+      {/* <messagePanel score={score}></messagePanel> */}
       <Board></Board>
-      <header className="App-header">
+      {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.js</code> and save to reload.
@@ -22,8 +27,8 @@ function App() {
         >
           Learn React
         </a>
-      </header>
-    </div>
+      </header> */}
+    </div >
   );
 }
 

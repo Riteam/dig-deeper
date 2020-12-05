@@ -1,4 +1,11 @@
 import React from 'react';
+
+// 下标转坐标
+function index2Coord(index) {
+  const len = 7
+  return [index % len, index / len | 0]
+}
+
 export default class Square extends React.Component {
   constructor(props) {
     super(props)
@@ -34,7 +41,8 @@ export default class Square extends React.Component {
   }
 
   componentDidUpdate(prevProp) {
-    let el = this.myRef.current
+    let el = this.myRef.current,
+      currIndex = this.props.index
 
     if (this.props.tripled) {
       // el.animate(
@@ -54,8 +62,8 @@ export default class Square extends React.Component {
         [x2, y2] = [this.props.index % 7, this.props.index / 7 | 0]
       el.animate(
         [
-          { transform: `translate(${(x1 - x2) * 100}px, ${(y1 - y2) * 100}px)` },
-          { transform: `translate(0)` }
+          { transform: `translate(${(x1 - x2) * 100}px, ${(y1 - y2) * 100}px)`, zIndex: prevProp.on ? 2 : 1 },
+          { transform: `translate(0)`, zIndex: prevProp.on ? 2 : 1 }
         ],
         {
           duration: (Math.abs(x1 - x2) + Math.abs(y1 - y2)) * 85,
@@ -66,6 +74,40 @@ export default class Square extends React.Component {
           this.props.onSwitchEnd(this.props.index)
         })
       // console.log(x1 - x2, y1 - y2, (Math.abs(x1 - x2) + Math.abs(y1 - y2)) * 100);
+    } else if (this.props.to >= 0 && this.props.to !== prevProp.to) {
+      console.log(this.props, '???');
+      // fly to core animtion
+      let [x1, y1] = index2Coord(currIndex),
+        [x2, y2] = index2Coord(this.props.to)
+      el.animate([
+        { transform: `translate(0) scale(1)`, opacity: 1 },
+        { transform: `translate(${(x2 - x1) * 60}px, ${(y2 - y1) * 60}px)scale(.5)`, opacity: 1 },
+        { transform: `translate(${(x2 - x1) * 100}px, ${(y2 - y1) * 100}px)scale(0)`, opacity: .1 }
+      ],
+        {
+          duration: 300,
+          easing: 'linear',
+          fill: 'forwards'
+        })
+    } else if (this.props.type === 8 && prevProp.type !== 8) {
+      console.log(this.props, '！！！')
+      el.animate([
+        {
+          transform: `scale(1) translateZ(2px)`, backgoundImage: `url(../img/${prevProp.type}.png)`
+        },
+        {
+          transform: `scale(0) translateZ(2px)`, backgoundImage: `url(../img/${this.props.type}.png)`
+        },
+        {
+          transform: `scale(1) translateZ(2px)`
+        },
+      ],
+        {
+          duration: 400,
+          easing: `cubic-bezier(.175, .885, .32, 1.275)`
+        }).finished.then(res => {
+          this.props.onDestroyEnd()
+        })
     }
   }
 
@@ -73,25 +115,22 @@ export default class Square extends React.Component {
     // if (this.props.index <= 1) {
     //   // console.log(11, this.props);
     // }
-    let classNames = ['squares']
-    let index = this.props.index,
-      x = index % 7, y = index / 7 | 0
-
-    let style = {
-      // transform: `translate(${x * 100}px, ${y * 100}px)`
-    }
+    let classNames = ['icon']
+    let index = this.props.index
 
     if (this.props.type) classNames.push('t' + this.props.type)
     if (this.props.tripled) classNames.push('tripled')
-    if (this.props.on) classNames.push('on')
+    // if (this.props.on) classNames.push('on')
+    if (this.props.to >= 0) classNames.push('to')
 
     return <div
-      ref={this.myRef}
-      style={style}
-      className={classNames.join(' ')}
+      className={'squares ' + (this.props.on ? 'on' : '')}
       onClick={this.props.onClick}
-      onTransitionEnd={this.props.onDestroyEnd}
     >
+      <div
+        ref={this.myRef}
+        onTransitionEnd={this.props.onDestroyEnd}
+        className={classNames.join(' ')}></div>
       <p className="testfont">
         type:{this.props.type} <br />
         index:{this.props.index} <br />

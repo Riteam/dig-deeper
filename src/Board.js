@@ -12,12 +12,13 @@ function getNewBoard() {
   })
 }
 
-function getNewItem(dropHeight = 0) {
+function getNewItem(dropHeight = 0, to) {
   return {
     type: random(1, 7),
     id: ++idCounter,
     dropHeight,
-    tripled: false
+    tripled: false,
+    to
   }
 }
 
@@ -32,12 +33,6 @@ function getManDis(p1, p2) {
   let [x2, y2] = [p2 % len, p2 / len | 0]
 
   return Math.abs(x1 - x2) + Math.abs(y1 - y2)
-}
-
-// 下标转坐标
-function index2Coord(index) {
-  const len = 7
-  return [index % len, index / len | 0]
 }
 
 // 获得形状的交点
@@ -95,25 +90,23 @@ function findTriple(arr, startPoint) {
   let firstXArr = findAtX(startPoint),
     firstYArr = findAtY(startPoint)
 
-  console.log(firstXArr, firstYArr);
+  console.log('first X,Y', firstXArr, firstYArr);
 
   if (firstXArr.length >= 3) {
     res = res.concat(firstXArr)
     firstXArr.forEach(xi => {
       let YArr = findAtY(xi)
-      console.log(4646, YArr);
       if (YArr.length >= 3) res = res.concat(YArr)
     })
   } else if (firstYArr.length >= 3) {
     res = res.concat(firstYArr)
     firstYArr.forEach(yi => {
       let XArr = findAtX(yi)
-      console.log(4646, XArr);
       if (XArr.length >= 3) res = res.concat(XArr)
     })
   }
   console.log(4747, res);
-  return []
+  return res
 }
 
 const boardArr = getNewBoard()
@@ -157,7 +150,7 @@ export default class Board extends React.Component {
 
         myEventBus.once('switchEnd', () => {
           console.log(45666);
-          this.digTriple([index, sIndex])
+          this.digTriple([index, sIndex], true)
         })
         // this.stateData = [index, sIndex]
         this.stateFlag = 1
@@ -185,36 +178,69 @@ export default class Board extends React.Component {
   }
 
   // 寻找并消灭三连！
-  digTriple(posArr = [...this.state.boardArr]) {
+  digTriple(posArr, isSwitch) {
     console.log('%c* digTriple', 'color: red;');
     this.stateFlag = 2
 
-    let needDestroyPos = []
+    if (!posArr) posArr = [] // todo
+    let needDestroyShape = new Map()
 
     posArr.forEach(i => {
       let pos = findTriple(this.state.boardArr, i)
       // console.log(pos);
       if (pos.length >= 3) {
-        needDestroyPos = needDestroyPos.concat(pos)
+        let core = pos[0], posSet = new Set()
+        for (let i of pos) {
+          if (posSet.has(i)) core = i
+          else posSet.add(i)
+        }
+        // needDestroyShape = needDestroyShape.concat([...posSet])
+        needDestroyShape.set(core, posSet)
       }
     })
 
-    if (needDestroyPos.length === 0) {
+    if (needDestroyShape.size === 0) {
       this.stateFlag = 0
       console.log('失败');
+      if (isSwitch) {
+        let newBoardArr = [...this.state.boardArr]
+        swap(newBoardArr, posArr[0], posArr[1])
+        setTimeout(() => {
+          this.setState({
+            boardArr: newBoardArr,
+            selectedIndex: null
+          });
+        }, 75);
+      }
       return false
     }
 
-    let newBoardArr = [...this.state.boardArr]
+    let newBoardArr = [...this.state.boardArr],
+      needDestroyPosArr = []
 
-    needDestroyPos.forEach(j => newBoardArr[j].tripled = true)
+    for (let [core, posSet] of needDestroyShape) {
+      if (posSet.size <= 5) {
+        // 正常消除
+        posSet.forEach(i => newBoardArr[i].tripled = true)
+
+        needDestroyPosArr.push(...posSet)
+      } else {
+        // 飞向核心并生成龙息瓶
+        posSet.delete(core)
+        newBoardArr[core].type = 8
+
+        posSet.forEach(i => newBoardArr[i].to = core)
+        needDestroyPosArr.push(...posSet)
+      }
+    }
+    // needDestroyShape.forEach(j => newBoardArr[j].tripled = true)
     this.setState({
       boardArr: newBoardArr,
       selectedIndex: null
     });
     myEventBus.once('destroyEnd', () => {
       console.log(66654);
-      this.dropDown(needDestroyPos)
+      this.dropDown(needDestroyPosArr)
     })
   }
 
@@ -243,7 +269,7 @@ export default class Board extends React.Component {
     for (let epos of endPos) {
       let emptyArr = []
       while (epos >= 0) {
-        if (newBoardArr[epos].tripled) {
+        if (newBoardArr[epos].tripled || newBoardArr[epos].to >= 0) {
           emptyArr.push(epos)
           epos -= 7
         }
