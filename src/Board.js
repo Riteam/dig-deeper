@@ -153,8 +153,9 @@ export default class Board extends React.Component {
 
         myEventBus.once('switchEnd', () => {
           console.log(45666);
-          if (newBoardArr[index].type === 8) {
-            this.dragonBreathBurst(index, newBoardArr[sIndex].type)
+          let DBpos = [index, sIndex].find(i => newBoardArr[i].type === 8)
+          if (DBpos >= 0) {
+            this.dragonBreathBurst(DBpos, newBoardArr[index + sIndex - DBpos].type)
           } else {
             this.digTriple([index, sIndex], true)
           }
