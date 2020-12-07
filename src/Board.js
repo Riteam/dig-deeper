@@ -6,9 +6,11 @@ import myEventBus from './assets/js/bus.js'
 
 let idCounter = 0
 
-const BoradSize = 8
+const BoardLen = 8,
+  BoardSize = BoardLen ** 2
+
 function getNewBoard() {
-  return new Array(BoradSize ** 2).fill(1).map(i => {
+  return new Array(BoardSize).fill(1).map(i => {
     return getNewItem()
   })
 }
@@ -25,25 +27,25 @@ function getNewItem(dropHeight = 0, to) {
 
 // get Manhattan Distance
 function getManDis(p1, p2) {
-  let [x1, y1] = [p1 % BoradSize, p1 / BoradSize | 0]
-  let [x2, y2] = [p2 % BoradSize, p2 / BoradSize | 0]
+  let [x1, y1] = [p1 % BoardLen, p1 / BoardLen | 0]
+  let [x2, y2] = [p2 % BoardLen, p2 / BoardLen | 0]
 
   return Math.abs(x1 - x2) + Math.abs(y1 - y2)
 }
 
 // 下标转坐标
 function index2Coord(index) {
-  return [index % BoradSize, index / BoradSize | 0]
+  return [index % BoardLen, index / BoardLen | 0]
 }
 
 // 获得形状的交点
 function getShapeCenter(arr) {
   for (let i of arr) {
-    let x1 = i % BoradSize, y1 = i / BoradSize | 0, ji = 0
+    let x1 = i % BoardLen, y1 = i / BoardLen | 0, ji = 0
     for (; ji < arr.length; ji++) {
       let j = arr[ji]
       if (i === j) continue
-      let x2 = j % BoradSize, y2 = j / BoradSize | 0
+      let x2 = j % BoardLen, y2 = j / BoardLen | 0
       if (Math.abs(x2 - x1) === 0 || Math.abs(y2 - y1) === 0) continue
       else break
     }
@@ -64,8 +66,8 @@ function findTriple(arr, startPoint) {
 
   function findAtX(pos) {
     let x = pos, row = [],
-      xMin = (pos / BoradSize | 0) * BoradSize,
-      xMax = xMin + BoradSize - 1
+      xMin = (pos / BoardLen | 0) * BoardLen,
+      xMax = xMin + BoardLen - 1
     while ((x - 1) >= xMin && arr[x - 1]?.type === target) {
       x -= 1
     }
@@ -77,12 +79,12 @@ function findTriple(arr, startPoint) {
 
   function findAtY(pos) {
     let y = pos, col = []
-    while (arr[y - BoradSize]?.type === target) {
-      y -= BoradSize
+    while (arr[y - BoardLen]?.type === target) {
+      y -= BoardLen
     }
     while (arr[y]?.type === target) {
       col.push(y)
-      y += BoradSize
+      y += BoardLen
     }
     return col
   }
@@ -142,7 +144,7 @@ export default class Board extends React.Component {
         return
       }
       let distance = Math.abs(index - sIndex)
-      // if (distance === BoradSize || distance === 1) {
+      // if (distance === BoardLen || distance === 1) {
       if (true) {
         // 是上下左右的相邻格子，可以交换
         let newBoardArr = [...this.state.boardArr]
@@ -209,6 +211,7 @@ export default class Board extends React.Component {
 
   // 检查地图是否有效
   checkGameAvailable() {
+    console.log('%c* checkGameAvailable', 'color: red;');
     let { boardArr } = this.state
     for (let i = 0; i < boardArr.length; i++) {
       let target = boardArr[i].type
@@ -220,28 +223,28 @@ export default class Board extends React.Component {
         ■    ■
       */
       if (
-        i % BoradSize !== BoradSize - 1        //不在最后一列
+        i % BoardLen !== BoardLen - 1        //不在最后一列
         && boardArr[i + 1]?.type === target   //右侧相等
       ) {
         let pos = []
-        if (i % BoradSize > 0) {
+        if (i % BoardLen > 0) {
           pos.push(
-            i - BoradSize - 1,  //左上
-            i + BoradSize - 1   //左下
+            i - BoardLen - 1,  //左上
+            i + BoardLen - 1   //左下
           )
         }
-        if (i % BoradSize < BoradSize - 2) {
+        if (i % BoardLen < BoardLen - 2) {
           pos.push(
-            i - BoradSize + 1,  //右上
-            i + BoradSize + 2   //右下
+            i - BoardLen + 1,  //右上
+            i + BoardLen + 2   //右下
           )
         }
-        if (i % BoradSize > 1) {
+        if (i % BoardLen > 1) {
           pos.push(
             i - 2               //左2
           )
         }
-        if (i % BoradSize < BoradSize - 3) {
+        if (i % BoardLen < BoardLen - 3) {
           pos.push(
             i + 3,              //右3
           )
@@ -262,25 +265,25 @@ export default class Board extends React.Component {
         ■
       */
       else if (
-        i < BoradSize * (BoradSize - 1)                //不在最后一行
-        && boardArr?.[i + BoradSize].type === target   //下侧相等
+        i < BoardLen * (BoardLen - 1)                //不在最后一行
+        && boardArr?.[i + BoardLen].type === target   //下侧相等
       ) {
         let pos = []
-        if (i % BoradSize > 0) {
+        if (i % BoardLen > 0) {
           pos.push(
-            i - BoradSize - 1,      //左上
-            i + BoradSize * 2 - 1   //左下
+            i - BoardLen - 1,      //左上
+            i + BoardLen * 2 - 1   //左下
           )
         }
-        if (i % BoradSize < BoradSize - 1) {
+        if (i % BoardLen < BoardLen - 1) {
           pos.push(
-            i - BoradSize + 1,      //右上
-            i + BoradSize * 2 + 1   //右下
+            i - BoardLen + 1,      //右上
+            i + BoardLen * 2 + 1   //右下
           )
         }
         pos.push(
-          i - BoradSize * 2,        //上2
-          i + BoradSize * 3         //下3
+          i - BoardLen * 2,        //上2
+          i + BoardLen * 3         //下3
         )
 
         if (
@@ -296,10 +299,10 @@ export default class Board extends React.Component {
       */
       else {
         let pos = [
-          i - BoradSize - 1, //左上
-          i - BoradSize + 1, //右上
-          i + BoradSize + 1, //右下
-          i + BoradSize - 1, //左下
+          i - BoardLen - 1, //左上
+          i - BoardLen + 1, //右上
+          i + BoardLen + 1, //右下
+          i + BoardLen - 1, //左下
         ]
         for (let j = 0; j < pos.length; j++) {
           let curr = pos[j], next = pos[(j + 1) % 4]
@@ -322,7 +325,7 @@ export default class Board extends React.Component {
     if (!posArr) {
       // 不传表示全盘检查，仅需每3个格子检查一次
       posArr = []
-      for (let i = 0; i <= BoradSize ** 2 - 1; i += 3) {
+      for (let i = 0; i <= BoardSize - 1; i += 3) {
         posArr.push(i)
       }
     }
@@ -354,7 +357,6 @@ export default class Board extends React.Component {
     if (needDestroyShape.size === 0) {
       this.stateFlag = 0
       console.log('无三连');
-      this.checkGameAvailable()
       if (isSwitch) {
         // let newBoardArr = [...this.state.boardArr]
         // swap(newBoardArr, posArr[0], posArr[1])
@@ -365,7 +367,8 @@ export default class Board extends React.Component {
         //   });
         // }, 75);
       } else {
-        this.checkGameAvailable()
+        let able = this.checkGameAvailable()
+        if (!able) console.warn('棋盘无效！')
       }
       return false
     }
@@ -415,7 +418,7 @@ export default class Board extends React.Component {
       emptyArrTotal = [],
       newBoardArr = [...this.state.boardArr]
     for (let pos of posArr) {
-      endPos.add(56 + pos % BoradSize)
+      endPos.add(56 + pos % BoardLen)
     }
     // 得到底部坐标
     endPos = [...endPos]
@@ -425,13 +428,13 @@ export default class Board extends React.Component {
       while (epos >= 0) {
         if (newBoardArr[epos].tripled || newBoardArr[epos].to >= 0) {
           emptyArr.push(epos)
-          epos -= BoradSize
+          epos -= BoardLen
         }
         else if (emptyArr.length > 0) {
           let pos = emptyArr.shift()
           swap(newBoardArr, pos, epos)
         } else {
-          epos -= BoradSize
+          epos -= BoardLen
         }
       }
       emptyArrTotal = emptyArrTotal.concat(emptyArr)
@@ -453,7 +456,7 @@ export default class Board extends React.Component {
       longestCol = 0,
       longestColCount = 0
     for (let pos of posArr) {
-      let col = pos % BoradSize
+      let col = pos % BoardLen
       if (col in dropCountPerCol) dropCountPerCol[col]++
       else dropCountPerCol[col] = 1
       if (dropCountPerCol[col] > longestColCount) {
@@ -463,7 +466,7 @@ export default class Board extends React.Component {
     }
     let newBoardArr = [...this.state.boardArr]
     for (let pos of posArr) {
-      newBoardArr[pos] = getNewItem(dropCountPerCol[pos % BoradSize])
+      newBoardArr[pos] = getNewItem(dropCountPerCol[pos % BoardLen])
     }
     this.setState({
       boardArr: newBoardArr
@@ -471,7 +474,7 @@ export default class Board extends React.Component {
 
 
     myEventBus.on('fillEnd', (index) => {
-      if (index % BoradSize === longestCol) {
+      if (index % BoardLen === longestCol) {
         // 需等到最后一个掉落再触发
         myEventBus.off('fillEnd')
         // console.log(myEventBus.fillEnd);
@@ -489,7 +492,7 @@ export default class Board extends React.Component {
     return <Square
       {...i}
       index={index}
-      size={BoradSize}
+      size={BoardLen}
       on={index === this.state.selectedIndex}
       onClick={() => this.clickHandler(index)}
       onSwitchEnd={() => this.switchEndHandler(index)}
