@@ -19,7 +19,7 @@ const imgs = {
 
 // 下标转坐标
 function index2Coord(index) {
-  const len = 7
+  const len = 8
   return [index % len, index / len | 0]
 }
 
@@ -36,9 +36,7 @@ export default class Square extends React.Component {
 
   componentDidMount() {
     let { id, index, dropHeight } = this.props
-    if (id > 49 && dropHeight > 0) {
-      console.log(123, dropHeight);
-      console.log(index);
+    if (dropHeight > 0) {
       let el = this.myRef.current
       // let Y = index / 7 | 0
       el.animate(
@@ -75,8 +73,8 @@ export default class Square extends React.Component {
     }
     else if (this.props.index !== prevProp.index) {
       // switch & drop animation
-      let [x1, y1] = [prevProp.index % 7, prevProp.index / 7 | 0],
-        [x2, y2] = [this.props.index % 7, this.props.index / 7 | 0]
+      let [x1, y1] = [prevProp.index % 8, prevProp.index / 8 | 0],
+        [x2, y2] = [this.props.index % 8, this.props.index / 8 | 0]
       el.animate(
         [
           { transform: `translate(${(x1 - x2) * 100}px, ${(y1 - y2) * 100}px)`, zIndex: prevProp.on ? 2 : 1 },
@@ -158,11 +156,11 @@ export default class Square extends React.Component {
         ref={this.myRef}
         onTransitionEnd={this.tnHandler}
         className={classNames.join(' ')}></div>
-      {/* <p className="testfont">
-        type:{this.props.type} <br />
+      <p className="testfont">
         index:{this.props.index} <br />
+        type:{this.props.type} <br />
         id:{this.props.id}
-      </p> */}
+      </p>
     </div>
   }
 }
