@@ -7,6 +7,8 @@ import img5 from './assets/img/5.png'
 import img6 from './assets/img/6.png'
 import img7 from './assets/img/7.png'
 
+import { BoardLen, Debug } from './assets/js/config'
+
 const imgs = {
   1: img1,
   2: img2,
@@ -19,8 +21,7 @@ const imgs = {
 
 // 下标转坐标
 function index2Coord(index) {
-  const len = 8
-  return [index % len, index / len | 0]
+  return [index % BoardLen, index / BoardLen | 0]
 }
 
 export default class Square extends React.Component {
@@ -73,8 +74,8 @@ export default class Square extends React.Component {
     }
     else if (this.props.index !== prevProp.index) {
       // switch & drop animation
-      let [x1, y1] = [prevProp.index % 8, prevProp.index / 8 | 0],
-        [x2, y2] = [this.props.index % 8, this.props.index / 8 | 0]
+      let [x1, y1] = index2Coord(prevProp.index),
+        [x2, y2] = index2Coord(this.props.index)
       el.animate(
         [
           { transform: `translate(${(x1 - x2) * 100}px, ${(y1 - y2) * 100}px)`, zIndex: prevProp.on ? 2 : 1 },
@@ -137,30 +138,32 @@ export default class Square extends React.Component {
     }
   }
   render() {
-    // if (this.props.index <= 1) {
-    //   // console.log(11, this.props);
-    // }
-    let classNames = ['icon']
-    let index = this.props.index
+    let iconClass = ['icon']
+    if (this.props.type) iconClass.push('t' + this.props.type)
+    if (this.props.tripled) iconClass.push('tripled')
+    if (this.props.to >= 0) iconClass.push('to')
 
-    if (this.props.type) classNames.push('t' + this.props.type)
-    if (this.props.tripled) classNames.push('tripled')
-    // if (this.props.on) classNames.push('on')
-    if (this.props.to >= 0) classNames.push('to')
+    let squaresClass = ['squares']
+    let [x, y] = index2Coord(this.props.index)
+    if (this.props.on) squaresClass.push('on')
+    if ((x + y) % 2 === 0) squaresClass.push('dif')
 
-    return <div
-      className={'squares ' + (this.props.on ? 'on' : '')}
-      onClick={this.props.onClick}
-    >
-      <div
-        ref={this.myRef}
-        onTransitionEnd={this.tnHandler}
-        className={classNames.join(' ')}></div>
+    let debugTip =
       <p className="testfont">
         index:{this.props.index} <br />
         type:{this.props.type} <br />
         id:{this.props.id}
       </p>
+
+    return <div
+      className={squaresClass.join(' ')}
+      onClick={this.props.onClick}
+    >
+      <div
+        ref={this.myRef}
+        onTransitionEnd={this.tnHandler}
+        className={iconClass.join(' ')}></div>
+      {Debug ? debugTip : null}
     </div>
   }
 }

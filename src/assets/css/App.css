@@ -1,27 +1,5 @@
 .App {
-  text-align: center;
-}
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
 .App-link {
@@ -44,26 +22,24 @@ body {
   position: relative;
   display: flex;
   flex-wrap: wrap;
-  /* background: #eee; */
-  /* border: 2px dashed #ddd; */
   width: 800px;
   height: 800px;
-  padding: 30px;
-  border-radius: 6px;
-  margin: 10px auto;
+  margin: 0 auto;
   user-select: none;
-  /* background-size: 100px; */
+  padding: 2px;
+  overflow: hidden;
 }
 .container .squares {
   position: relative;
-  /* position: absolute; */
   width: 100px;
   height: 100px;
   box-sizing: border-box;
-  background: rgba(0,0,0,.4);
+  /* background: rgba(0,0,0,.4); */
+  background: linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.4), rgba(0,0,0,.2)), url(../img/stone.png);
 }
-.container .squares:nth-child(odd) {
-  background: rgba(0,0,0,.3);
+.container .squares.dif {
+  /* background: rgba(0,0,0,.2); */
+  background: linear-gradient(45deg, rgba(0,0,0,.4), rgba(0,0,0,.5), rgba(0,0,0,.4)), url(../img/gravel.png)
 }
 .container .squares .icon {
   position: relative;
@@ -71,9 +47,10 @@ body {
   height: 100px;
   box-sizing: border-box;
   background: no-repeat center;
-  background-size: 96px;
+  background-size: 100px;
   transition: transform .3s cubic-bezier(.6, -.28, .735, .045),
   opacity linear .1s .2s;
+  pointer-events: none;
 }
 .squares .icon.tripled {
   transform: rotate(-45deg) scale(0.01);
@@ -97,27 +74,32 @@ body {
 .squares.on {
   position: relative;
   outline: 2px solid red;
+  z-index: 1;
 }
 .squares .icon.t1 {
   background-image: url(../img/1.png);
 }
 .squares .icon.t2 {
   background-image: url(../img/2.png);
+  background-size: 106px;
 }
 .squares .icon.t3 {
   background-image: url(../img/3.png);
 }
 .squares .icon.t4 {
   background-image: url(../img/4.png);
+  background-size: 96px;
 }
 .squares .icon.t5 {
   background-image: url(../img/5.png);
 }
 .squares .icon.t6 {
   background-image: url(../img/6.png);
+  background-size: 94px;
 }
 .squares .icon.t7 {
   background-image: url(../img/7.png);
+  background-size: 110px;
 }
 .squares .icon.t8 {
   background-image: url(../img/8.png);
@@ -136,18 +118,16 @@ body {
   }
 }
 
-.cont {
-  position: absolute;
-  left: 0;
-  top: 0;
-  background: #ddd;
-  padding: 10px;
-  display: flex;
-}
-.cont>div{
-  width: 100px;
+.panel {
   height: 100px;
-  background: #ccc;
+  font-size: 30px;
   color: #fff;
+  text-align: left;
+  font-weight: bold;
+  line-height: 100px;
+  width: 800px;
+  margin: auto;
+}
+.panel .scoreNum{
   font-size: 50px;
 }

@@ -4,14 +4,13 @@ import React from 'react';
 import Square from './Square'
 import myEventBus from './assets/js/bus.js'
 
-let idCounter = 0
+import { BoardLen, BoardSize } from './assets/js/config'
 
-const BoardLen = 8,
-  BoardSize = BoardLen ** 2
+let idCounter = 0
 
 function getNewBoard() {
   return new Array(BoardSize).fill(1).map(i => {
-    return getNewItem()
+    return getNewItem(7)
   })
 }
 
@@ -108,15 +107,13 @@ function findTriple(arr, startPoint) {
   return res
 }
 
-const boardArr = getNewBoard()
-
 // console.log(boardArr)
 
 export default class Board extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      boardArr: boardArr,
+      boardArr: [],
       selectedIndex: null,
     };
 
@@ -126,9 +123,19 @@ export default class Board extends React.Component {
 
   componentDidMount() {
     console.log('board mount!!');
-    setTimeout(() => {
+    this.resetBoard()
+    // setTimeout(() => {
+    //   this.digTriple()
+    // }, 500);
+  }
+
+  resetBoard() {
+    this.setState({
+      boardArr: getNewBoard()
+    })
+    myEventBus.once('fillEnd', (index) => {
       this.digTriple()
-    }, 500);
+    })
   }
 
   clickHandler(index) {
@@ -204,6 +211,9 @@ export default class Board extends React.Component {
       boardArr: newBoardArr,
       selectedIndex: null
     });
+    // 提交分数
+    this.props.onScoreSubmit(needDestroyPosArr.length * 15 + 50)
+
     myEventBus.once('destroyEnd', () => {
       this.dropDown(needDestroyPosArr)
     })
@@ -213,7 +223,9 @@ export default class Board extends React.Component {
   checkGameAvailable() {
     console.log('%c* checkGameAvailable', 'color: red;');
     let { boardArr } = this.state
+    console.clear()
     for (let i = 0; i < boardArr.length; i++) {
+      console.log(i);
       let target = boardArr[i].type
       if (target === 8) return true
       /*
@@ -235,7 +247,7 @@ export default class Board extends React.Component {
         }
         if (i % BoardLen < BoardLen - 2) {
           pos.push(
-            i - BoardLen + 1,  //右上
+            i - BoardLen + 2,  //右上
             i + BoardLen + 2   //右下
           )
         }
@@ -264,7 +276,7 @@ export default class Board extends React.Component {
       ■  ■
         ■
       */
-      else if (
+      if (
         i < BoardLen * (BoardLen - 1)                //不在最后一行
         && boardArr?.[i + BoardLen].type === target   //下侧相等
       ) {
@@ -358,6 +370,7 @@ export default class Board extends React.Component {
       this.stateFlag = 0
       console.log('无三连');
       if (isSwitch) {
+        this.checkGameAvailable()
         // let newBoardArr = [...this.state.boardArr]
         // swap(newBoardArr, posArr[0], posArr[1])
         // setTimeout(() => {
@@ -365,10 +378,14 @@ export default class Board extends React.Component {
         //     boardArr: newBoardArr,
         //     selectedIndex: null
         //   });
-        // }, 75);
+        // }, 100);
       } else {
         let able = this.checkGameAvailable()
-        if (!able) console.warn('棋盘无效！')
+        if (!able) {
+          alert('地图不可用，即将刷新')
+          console.warn('棋盘无效！')
+          this.resetBoard()
+        }
       }
       return false
     }
@@ -383,6 +400,9 @@ export default class Board extends React.Component {
         posSet.forEach(i => newBoardArr[i].tripled = true)
 
         needDestroyPosArr.push(...posSet)
+
+        // 提交分数
+        this.props.onScoreSubmit(posSet.size * 10)
       } else {
         // 飞向核心并生成龙息瓶
         posSet.delete(core)
@@ -390,6 +410,9 @@ export default class Board extends React.Component {
 
         posSet.forEach(i => newBoardArr[i].to = core)
         needDestroyPosArr.push(...posSet)
+
+        // 提交分数
+        this.props.onScoreSubmit(posSet.size * 20)
       }
     }
     // needDestroyShape.forEach(j => newBoardArr[j].tripled = true)
@@ -505,14 +528,11 @@ export default class Board extends React.Component {
 
   render() {
     return (
-      <>
-        <h4>state: {this.stateFlag}</h4>
-        <div className="container">
-          {
-            this.state.boardArr.map((item, index) => this.renderSquare(item, index))
-          }
-        </div>
-      </>
+      <div className="container">
+        {
+          this.state.boardArr.map((item, index) => this.renderSquare(item, index))
+        }
+      </div>
     )
   }
 }

@@ -2,18 +2,19 @@ import logo from './logo.svg';
 import './assets/css/App.css';
 
 import Board from './Board'
-import messagePanel from './flip'
+import MessagePanel from './MessagePanel'
 
 import { useState } from 'react';
 function App() {
-  // let [score, setScore] = useState(0)
-  // function ScoreHandler(newScore) {
-  //   setScore(prev => prev + newScore)
-  // }
+  let [score, setScore] = useState(0)
+  function ScoreHandler(newScore) {
+    console.log('+' + newScore);
+    setScore(prev => prev + newScore)
+  }
   return (
     <div className="App">
-      {/* <messagePanel score={score}></messagePanel> */}
-      <Board></Board>
+      <MessagePanel score={score}></MessagePanel>
+      <Board onScoreSubmit={ScoreHandler}></Board>
       {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
