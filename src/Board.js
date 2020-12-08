@@ -223,9 +223,9 @@ export default class Board extends React.Component {
   checkGameAvailable() {
     console.log('%c* checkGameAvailable', 'color: red;');
     let { boardArr } = this.state
-    console.clear()
+    // console.clear()
     for (let i = 0; i < boardArr.length; i++) {
-      console.log(i);
+      // console.log(i);
       let target = boardArr[i].type
       if (target === 8) return true
       /*
@@ -316,6 +316,12 @@ export default class Board extends React.Component {
           i + BoardLen + 1, //右下
           i + BoardLen - 1, //左下
         ]
+        if (i % BoardLen === 0) {
+          pos[0] = pos[3] = -1
+        }
+        if (i % BoardLen === BoardLen - 1) {
+          pos[1] = pos[2] = -1
+        }
         for (let j = 0; j < pos.length; j++) {
           let curr = pos[j], next = pos[(j + 1) % 4]
           if (
@@ -341,7 +347,7 @@ export default class Board extends React.Component {
         posArr.push(i)
       }
     }
-    console.log('posArr.length', posArr.length);
+    // console.log('posArr.length', posArr.length);
 
     let needDestroyShape = new Map(),
       posTripled = new Set()
@@ -370,15 +376,15 @@ export default class Board extends React.Component {
       this.stateFlag = 0
       console.log('无三连');
       if (isSwitch) {
-        this.checkGameAvailable()
-        // let newBoardArr = [...this.state.boardArr]
-        // swap(newBoardArr, posArr[0], posArr[1])
-        // setTimeout(() => {
-        //   this.setState({
-        //     boardArr: newBoardArr,
-        //     selectedIndex: null
-        //   });
-        // }, 100);
+        // this.checkGameAvailable()
+        let newBoardArr = [...this.state.boardArr]
+        swap(newBoardArr, posArr[0], posArr[1])
+        setTimeout(() => {
+          this.setState({
+            boardArr: newBoardArr,
+            selectedIndex: null
+          });
+        }, 100);
       } else {
         let able = this.checkGameAvailable()
         if (!able) {
@@ -462,7 +468,7 @@ export default class Board extends React.Component {
       }
       emptyArrTotal = emptyArrTotal.concat(emptyArr)
     }
-    console.log(endPos);
+    // console.log(endPos);
     this.setState({
       boardArr: newBoardArr
     })
