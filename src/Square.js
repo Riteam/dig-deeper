@@ -1,23 +1,5 @@
 import React from 'react';
-import img1 from './assets/img/1.png'
-import img2 from './assets/img/2.png'
-import img3 from './assets/img/3.png'
-import img4 from './assets/img/4.png'
-import img5 from './assets/img/5.png'
-import img6 from './assets/img/6.png'
-import img7 from './assets/img/7.png'
-
-import { BoardLen, Debug } from './assets/js/config'
-
-const imgs = {
-  1: img1,
-  2: img2,
-  3: img3,
-  4: img4,
-  5: img5,
-  6: img6,
-  7: img7,
-}
+import { BoardLen, Debug, Icons } from './assets/js/config'
 
 // 下标转坐标
 function index2Coord(index) {
@@ -91,7 +73,6 @@ export default class Square extends React.Component {
         })
       // console.log(x1 - x2, y1 - y2, (Math.abs(x1 - x2) + Math.abs(y1 - y2)) * 100);
     } else if (this.props.to >= 0 && this.props.to !== prevProp.to) {
-      console.log(this.props, '???');
       // fly to core animtion
       let [x1, y1] = index2Coord(currIndex),
         [x2, y2] = index2Coord(this.props.to)
@@ -106,11 +87,10 @@ export default class Square extends React.Component {
           fill: 'forwards'
         })
     } else if (this.props.type === 8 && prevProp.type !== 8) {
-      console.log(this.props, prevProp.type, '！！！')
       el.animate([
         {
           transform: `translateY(0) scale(1)`,
-          backgroundImage: `url(${imgs[prevProp.type]})`,
+          backgroundImage: `url(${Icons[prevProp.type]})`,
           zIndex: 3
         },
         {

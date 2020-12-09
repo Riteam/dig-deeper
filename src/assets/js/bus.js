@@ -1,3 +1,5 @@
+import { Debug } from './config'
+
 class EventBus {
   constructor() {
     this.events = {
@@ -33,7 +35,7 @@ class EventBus {
         fn(params)
         // }
       } else {
-        console.warn(key + ' is no in events')
+        Debug && console.warn(key + ' is no in events')
       }
     }, 0);
   }

@@ -4,7 +4,7 @@ import React from 'react';
 import Square from './Square'
 import myEventBus from './assets/js/bus.js'
 
-import { BoardLen, BoardSize } from './assets/js/config'
+import { BoardLen, BoardSize, Debug } from './assets/js/config'
 
 let idCounter = 0
 
@@ -118,15 +118,15 @@ export default class Board extends React.Component {
     };
 
     // this.stateData = null
-    this.stateFlag = 0
+    this.status = 0
   }
 
   componentDidMount() {
-    console.log('board mount!!');
+    if (Debug) {
+      console.log('==已开启Debug模式==')
+      console.log('可在js/config中修改')
+    }
     this.resetBoard()
-    // setTimeout(() => {
-    //   this.digTriple()
-    // }, 500);
   }
 
   resetBoard() {
@@ -134,6 +134,7 @@ export default class Board extends React.Component {
       boardArr: getNewBoard()
     })
     myEventBus.once('fillEnd', (index) => {
+      console.log('reset fillEnd 触发', index);
       this.digTriple()
     })
   }
@@ -141,6 +142,8 @@ export default class Board extends React.Component {
   clickHandler(index) {
     // 空格不处理
     if (this.state.boardArr[index].tripled) return false
+    // 不在空闲状态不处理
+    if (this.status !== 0) return false
 
     let sIndex = this.state.selectedIndex
 
@@ -151,8 +154,8 @@ export default class Board extends React.Component {
         return
       }
       let distance = Math.abs(index - sIndex)
-      // if (distance === BoardLen || distance === 1) {
-      if (true) {
+      if (distance === BoardLen || distance === 1) {
+        // if (true) {
         // 是上下左右的相邻格子，可以交换
         let newBoardArr = [...this.state.boardArr]
         swap(newBoardArr, sIndex, index)
@@ -172,14 +175,8 @@ export default class Board extends React.Component {
             this.digTriple([index, sIndex], true)
           }
         })
-        // this.stateData = [index, sIndex]
-        this.stateFlag = 1
 
-        // do switch animation...
-
-        // setTimeout(() => {
-        //   this.digTriple([index, sIndex])
-        // }, 200);
+        this.status = 1
         return
       }
     }
@@ -191,9 +188,6 @@ export default class Board extends React.Component {
   // when switch animation end -> digTriple
   switchEndHandler(index) {
     myEventBus.emit('switchEnd', index)
-    // if (this.stateFlag === 1) {
-    //   this.digTriple(this.stateData)
-    // }
   }
 
   // 龙息瓶爆炸！！
@@ -221,7 +215,7 @@ export default class Board extends React.Component {
 
   // 检查地图是否有效
   checkGameAvailable() {
-    console.log('%c* checkGameAvailable', 'color: red;');
+    Debug && console.log('%c* checkGameAvailable', 'color: red;');
     let { boardArr } = this.state
     // console.clear()
     for (let i = 0; i < boardArr.length; i++) {
@@ -338,8 +332,8 @@ export default class Board extends React.Component {
 
   // 寻找并消灭三连！
   digTriple(posArr, isSwitch) {
-    console.log('%c* digTriple', 'color: red;');
-    this.stateFlag = 2
+    Debug && console.log('%c* digTriple', 'color: red;');
+    this.status = 2
     if (!posArr) {
       // 不传表示全盘检查，仅需每3个格子检查一次
       posArr = []
@@ -356,14 +350,31 @@ export default class Board extends React.Component {
       if (posTripled.has(i)) {
         return false
       }
+      // 以该点为起点寻找三连
       let pos = findTriple(this.state.boardArr, i)
       // console.log(pos);
       if (pos.length >= 3) {
-        console.log('destroyed', pos);
-        let core = pos[0], posSet = new Set()
-        for (let i of pos) {
-          if (posSet.has(i)) core = i
-          else posSet.add(i)
+        // console.log('destroyed', pos);
+        let core = pos[pos.length >> 1], posSet = new Set()
+
+        // 一字型，core设为中间
+        // if (pos.length >= 5) {
+        //   let sort = pos.sort(),
+        //     dis = sort[1] - sort[0],
+        //     res = true
+
+        //   for (let p = 2; p < sort.length; p++) {
+        //     if (pos[p] - pos[p - 1] !== dis) {
+        //       res = false
+        //       break
+        //      }
+        //   }
+        //   if (res)
+        // }
+
+        for (let p of pos) {
+          if (posSet.has(p)) core = p
+          else posSet.add(p)
         }
         // needDestroyShape = needDestroyShape.concat([...posSet])
         needDestroyShape.set(core, posSet)
@@ -373,10 +384,11 @@ export default class Board extends React.Component {
     })
 
     if (needDestroyShape.size === 0) {
-      this.stateFlag = 0
+      this.status = 0
       console.log('无三连');
       if (isSwitch) {
         // this.checkGameAvailable()
+        // 回到交换前位置
         let newBoardArr = [...this.state.boardArr]
         swap(newBoardArr, posArr[0], posArr[1])
         setTimeout(() => {
@@ -387,10 +399,13 @@ export default class Board extends React.Component {
         }, 100);
       } else {
         let able = this.checkGameAvailable()
+        // if (true) {
         if (!able) {
-          alert('地图不可用，即将刷新')
-          console.warn('棋盘无效！')
-          this.resetBoard()
+          console.warn('地图无效！')
+          setTimeout(() => {
+            alert('地图不可用，即将刷新')
+            this.resetBoard()
+          }, 200);
         }
       }
       return false
@@ -400,7 +415,7 @@ export default class Board extends React.Component {
       needDestroyPosArr = []
 
     for (let [core, posSet] of needDestroyShape) {
-      console.log(posSet);
+      // console.log(posSet);
       if (posSet.size <= 4) {
         // 正常消除
         posSet.forEach(i => newBoardArr[i].tripled = true)
@@ -433,15 +448,12 @@ export default class Board extends React.Component {
 
   destroyEndHandler(index) {
     myEventBus.emit('destroyEnd', index)
-    // if (this.stateFlag === 2) {
-    //   this.digTriple(this.stateData)
-    // }
   }
 
   // 下落
   dropDown(posArr) {
-    console.log('%c* dropDown', 'color: red;', posArr);
-    this.stateFlag = 3
+    Debug && console.log('%c* dropDown', 'color: red;', posArr);
+    this.status = 3
 
     let endPos = new Set(),
       emptyArrTotal = [],
@@ -479,7 +491,8 @@ export default class Board extends React.Component {
   }
 
   fillSquire(posArr) {
-    console.log('%c* fillSquire', 'color: red;', posArr);
+    Debug && console.log('%c* fillSquire', 'color: red;', posArr);
+    this.status = 4
 
     let dropCountPerCol = {},
       longestCol = 0,

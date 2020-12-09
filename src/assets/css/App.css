@@ -53,6 +53,7 @@ body {
   pointer-events: none;
 }
 .squares .icon.tripled {
+  filter: drop-shadow(0 0 15px white);
   transform: rotate(-45deg) scale(0.01);
   opacity: 0;
 }
