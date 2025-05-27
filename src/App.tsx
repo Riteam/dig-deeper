@@ -2,6 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import Grid from "./Grid";
 
 function App() {
   const [count, setCount] = useState(0)
@@ -17,10 +18,11 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
+      <Grid type={0} num={count}></Grid>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
+        <button onClick={() => setCount((count) => (count + Math.random() * 50) | 0)}>
           count is {count}
-        </button>
+        </button><h1></h1>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>

@@ -531,7 +531,7 @@ export default class Board extends React.Component {
   }
 
   renderSquare(i, index) {
-    return <Square
+    return (<Square
       {...i}
       index={index}
       size={BoardLen}
@@ -542,7 +542,7 @@ export default class Board extends React.Component {
       onFillEnd={() => this.fillEndHandler(index)}
 
       key={i.id}
-    />;
+    />);
   }
 
   render() {
