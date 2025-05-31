@@ -1,8 +1,0 @@
-.Underground {
-  display: flex;
-  width: 512px;
-  flex-wrap: wrap;
-  user-select: none;
-  background: url(../img/dirt.png);
-  background-size: 64px;
-}

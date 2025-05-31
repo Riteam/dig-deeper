@@ -1,6 +1,4 @@
-.App {
-
-}
+.App {}
 
 .App-link {
   color: #61dafb;
@@ -10,6 +8,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -18,6 +17,7 @@
 body {
   background: url(../img/dirt.png);
 }
+
 .container {
   position: relative;
   display: flex;
@@ -29,18 +29,21 @@ body {
   padding: 2px;
   overflow: hidden;
 }
+
 .container .squares {
   position: relative;
   width: 100px;
   height: 100px;
   box-sizing: border-box;
   /* background: rgba(0,0,0,.4); */
-  background: linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.4), rgba(0,0,0,.2)), url(../img/stone.png);
+  background: linear-gradient(rgba(0, 0, 0, .2), rgba(0, 0, 0, .4), rgba(0, 0, 0, .2)), url(../img/stone.png);
 }
+
 .container .squares.dif {
   /* background: rgba(0,0,0,.2); */
-  background: linear-gradient(45deg, rgba(0,0,0,.4), rgba(0,0,0,.5), rgba(0,0,0,.4)), url(../img/gravel.png)
+  background: linear-gradient(45deg, rgba(0, 0, 0, .4), rgba(0, 0, 0, .5), rgba(0, 0, 0, .4)), url(../img/gravel.png)
 }
+
 .container .squares .icon {
   position: relative;
   width: 100px;
@@ -49,17 +52,20 @@ body {
   background: no-repeat center;
   background-size: 100px;
   transition: transform .3s cubic-bezier(.6, -.28, .735, .045),
-  opacity linear .1s .2s;
+    opacity linear .1s .2s;
   pointer-events: none;
 }
+
 .squares .icon.tripled {
   filter: drop-shadow(0 0 15px white);
   transform: rotate(-45deg) scale(0.01);
   opacity: 0;
 }
+
 .squares .icon.to {
   opacity: 0;
 }
+
 .testfont {
   position: absolute;
   left: 0;
@@ -72,48 +78,22 @@ body {
   opacity: .8;
   z-index: 10;
 }
+
 .squares.on {
   position: relative;
   outline: 2px solid red;
   z-index: 1;
-}
-.squares .icon.t1 {
-  background-image: url(../img/1.png);
-}
-.squares .icon.t2 {
-  background-image: url(../img/2.png);
-  background-size: 106px;
-}
-.squares .icon.t3 {
-  background-image: url(../img/3.png);
-}
-.squares .icon.t4 {
-  background-image: url(../img/4.png);
-  background-size: 96px;
-}
-.squares .icon.t5 {
-  background-image: url(../img/5.png);
-}
-.squares .icon.t6 {
-  background-image: url(../img/6.png);
-  background-size: 94px;
-}
-.squares .icon.t7 {
-  background-image: url(../img/7.png);
-  background-size: 110px;
-}
-.squares .icon.t8 {
-  background-image: url(../img/8.png);
-  animation: shining infinite both 1s;
 }
 
 @keyframes shining {
   0% {
     filter: drop-shadow(0 0 5px #fff);
   }
+
   30% {
     filter: drop-shadow(0 0 8px #fff);
   }
+
   100% {
     filter: drop-shadow(0 0 5px #fff);
   }
@@ -129,6 +109,7 @@ body {
   width: 800px;
   margin: auto;
 }
-.panel .scoreNum{
+
+.panel .scoreNum {
   font-size: 50px;
 }

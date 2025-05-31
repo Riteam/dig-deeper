@@ -1,8 +1,20 @@
 #root {
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  /* padding: 2rem; */
   text-align: center;
+  background-image: url('./assets/img/grassblock.png'), url('./assets/img/dirt.png');
+  background-size: 64px, 64px;
+  background-repeat: repeat-x, repeat;
+  background-position: top left, 64px 64px;
+}
+
+h1 {
+  color: #fff;
+  height: 128px;
+  box-sizing: border-box;
+  padding: 20px 10px;
+  text-align: left;
+  font-size: 30px;
 }
 
 .logo {
@@ -11,9 +23,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -22,6 +36,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
