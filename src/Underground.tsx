@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import Grid from "./Grid"
+import Burst from './Burst'
 import style from './Underground.module.css'
 import Utils from "./assets/js/utils"
 
@@ -15,13 +16,6 @@ interface GridData {
   type: number
   initPos: number
 }
-
-const getUID = (function () {
-  let idCount = 1
-  return function (): number {
-    return idCount++
-  }
-})()
 
 function findMatch3(
   grids: GridData[],
@@ -101,29 +95,33 @@ function findSquare(grids: GridData[], startIndex: number) {
   return []
 }
 
+// 生成一个随机矿单位
+function genGrid(variety: number, initPos: number = -1): GridData {
+  return {
+    id: Utils.getUniqueId(),
+    type: Math.floor(Math.random() * variety),
+    initPos
+  }
+}
+
+// 生成矿床矩阵
 function genGrids(size: number, variety: number): GridData[] {
   return Array.from({ length: size ** 2 }, () => {
-    return {
-      id: getUID(),
-      type: Math.floor(Math.random() * variety),
-      initPos: -1
-    }
+    return genGrid(variety)
   })
 }
 
-function isAdjacent(i1: number, i2: number, size: number): boolean {
-  return Math.abs(i1 - i2) === 1 || Math.abs(i1 - i2) === size;
-}
 
+
+
+// 地下矿床组件
 function Underground({ size, variety }: UndergroundProps) {
 
   const [grids, setGrids] = useState<GridData[]>([]);
   const [selected, setSelected] = useState(-1)
 
   const WaitingAnimateEnd = useRef(new Set<number>())
-
   const SnapshotsRef = useRef<GridData[][]>([])
-
 
   useEffect(() => {
     const g = genGrids(size, variety)
@@ -150,7 +148,7 @@ function Underground({ size, variety }: UndergroundProps) {
     }
 
     Promise.resolve().then(() => {
-      console.log(SnapshotsRef.current);
+      playSnapshots()
     })
   }
 
@@ -192,25 +190,62 @@ function Underground({ size, variety }: UndergroundProps) {
       }
     }
 
+    // 保存快照：mined
+    SnapshotsRef.current.push(minedGrids)
     doFill(minedGrids, matchedBlocks.flat())
   }
 
   const doFill = (grids: GridData[], matchedPos: number[]) => {
 
+    const filledGrids = [...grids]
     console.log('doFill');
+    console.log(matchedPos);
 
-    // 把需要补的列找出来
-    const colsSet = new Set()
-    const size = grids.length
+
+    // 把需要补的[列]找出来
+    const colsSet = new Set<number>()
     for (const i of matchedPos) {
       colsSet.add(i % size)
     }
-
     console.log(colsSet);
 
 
+    // 遍历每[列]，确定底部坐标，从底部开始往上数
+    for (const i of colsSet) {
+      const bottom = size * (size - 1) + i
+      console.log(bottom);
+
+      let slow = bottom, fast = bottom
+      while (fast >= 0) {
+        if (filledGrids[fast].type !== -1) {
+          filledGrids[slow] = filledGrids[fast]
+          slow -= size
+        }
+        fast -= size
+      }
+
+
+      const dropHeight = (slow - fast) / size | 0
+      while (slow >= 0) {
+        filledGrids[slow] = genGrid(variety, dropHeight)
+        slow -= size
+      }
+    }
+
+    // 保存快照：filled
+    SnapshotsRef.current.push(filledGrids)
+    doExplore(filledGrids, matchedPos)
   }
 
+  const playSnapshots = () => {
+    const nextGrids = SnapshotsRef.current.shift()
+    if (nextGrids) {
+      setGrids(nextGrids)
+      setTimeout(() => {
+        playSnapshots()
+      }, 500);
+    }
+  }
   // 接收点击事件参数
   const clickHandler = (index: number) => {
     console.log('Selected:', grids[index]);
@@ -221,7 +256,7 @@ function Underground({ size, variety }: UndergroundProps) {
         setSelected(-1);
       }
       // 选了邻接的，交换
-      else if (isAdjacent(selected, index, size)) {
+      else if (Utils.isAdjacent(selected, index, size)) {
         doSwap(selected, index);
         setSelected(-1);
       }
@@ -253,7 +288,7 @@ function Underground({ size, variety }: UndergroundProps) {
               onAnimateEnd={animateEndHandler}
             />)
         else
-          return <div key={idx}></div>
+          return <Burst key={idx}></Burst>
       })
     }
   </div >

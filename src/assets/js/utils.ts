@@ -1,3 +1,4 @@
+let idCount = 1
 
 const Utils = {
   getXY(index: number, size: number): [number, number] {
@@ -7,6 +8,14 @@ const Utils = {
     const temp = arr[i]
     arr[i] = arr[j]
     arr[j] = temp
+  },
+  getUniqueId(): number {
+    return idCount++
+  },
+
+  isAdjacent(i1: number, i2: number, rowDistance: number): boolean {
+    return Math.abs(i1 - i2) === 1
+      || Math.abs(i1 - i2) === rowDistance;
   }
 }
 
