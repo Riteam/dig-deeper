@@ -12,8 +12,12 @@ const moBurstConfig = {
   radius: { 0: 100 }
 }
 
+type BurstProps = {
+  index: number;
+  onAnimateEnd: (i: number) => void;
+};
 
-const Burst = () => {
+const Burst = ({ index, onAnimateEnd }: BurstProps) => {
   const animDom = useRef(null);
   const moBurst = useRef(null);
 
@@ -23,22 +27,28 @@ const Burst = () => {
     // Assign a Shape animation to a ref
     const b = new mojs.Burst({
       parent: animDom.current,
-      radius: { 0: 50 },
-      count: 9,
+      radius: { 0: 40 },
+      count: 6,
+      children: {
+        shape: 'rect',
+        radius: 6,
+        fill: [
+          '#B4B4B4',
+          '#DCDCDC',
+          '#FFFFFF',
+          '#878787',
+        ],
+        degreeShift: 'rand(0, 360)',
+        duration: 200,
+        rotate: { 0: 360 },
+      },
+      // 事件
       onStart() {
         console.log('start');
       },
       onComplete() {
-        console.log('end');
+        onAnimateEnd(index)
       },
-      children: {
-        swirlSize: 200,
-        shape: 'rect',
-        fill: '#707070',
-        duration: 1000,
-        isShowEnd: true,
-        isShowStart: true,
-      }
     });
 
     b.play()

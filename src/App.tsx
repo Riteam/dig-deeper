@@ -1,6 +1,7 @@
 import { createContext, memo, useState } from 'react'
 import './App.css'
 import Underground from './Underground';
+import Inventory from './Inventory';
 
 // import MojsExample from './test.jsx';
 
@@ -30,6 +31,7 @@ function App() {
     <>
       {/* <MojsExample duration={dur} /> */}
       <h1>Dig Deeper</h1>
+      <Inventory items={[111, 233, 99]}></Inventory >
       <SizeContext.Provider value={config.size}>
         <MemoUnderground type={0} variety={config.variety} size={config.size}></MemoUnderground>
       </SizeContext.Provider>

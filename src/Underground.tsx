@@ -96,19 +96,53 @@ function findSquare(grids: GridData[], startIndex: number) {
 }
 
 // 生成一个随机矿单位
-function genGrid(variety: number, initPos: number = -1): GridData {
+function genGrid(variety: number, initPos: number = -1, exclude: number[] = []): GridData {
+  const include = []
+  for (let i = 0; i < variety; i++) {
+    if (!exclude.includes(i)) include.push(i)
+  }
   return {
     id: Utils.getUniqueId(),
-    type: Math.floor(Math.random() * variety),
+    type: include[Math.random() * include.length | 0],
     initPos
   }
 }
 
 // 生成矿床矩阵
-function genGrids(size: number, variety: number): GridData[] {
-  return Array.from({ length: size ** 2 }, () => {
-    return genGrid(variety)
-  })
+function genGrids(size: number, variety: number) {
+  const grids: GridData[] = []
+  for (let i = 0; i < size ** 2; i++) {
+    const exclude = []
+    // 检查左边有没有两个一样的，有的话不能再一样
+    if (
+      i % size >= 2
+      && grids[i - 1].type === grids[i - 2].type
+    ) {
+      exclude.push(grids[i - 1].type)
+    }
+
+    // 检查上边有没有两个一样的，有的话不能再一样
+    if (
+      i >= size * 2
+      && grids[i - size].type === grids[i - size * 2].type
+    ) {
+      exclude.push(grids[i - size].type)
+    }
+
+    // 检查左上角有没有三个一样的，有的话不能再一样
+    if (i > size
+      && i % size >= 1
+      && grids[i - 1].type === grids[i - size].type
+      && grids[i - 1].type === grids[i - size - 1].type
+    ) {
+      console.log('差点有个方块', i);
+
+      exclude.push(grids[i - 1].type)
+    }
+
+    grids.push(genGrid(variety, -1, exclude))
+  }
+  return grids
 }
 
 
@@ -120,8 +154,8 @@ function Underground({ size, variety }: UndergroundProps) {
   const [grids, setGrids] = useState<GridData[]>([]);
   const [selected, setSelected] = useState(-1)
 
-  const WaitingAnimateEnd = useRef(new Set<number>())
-  const SnapshotsRef = useRef<GridData[][]>([])
+  const queueAnimateEndRef = useRef(new Set<number>())
+  const SnapshotsRef = useRef<{ g: GridData[], i: number[] }[]>([])
 
   useEffect(() => {
     const g = genGrids(size, variety)
@@ -131,6 +165,10 @@ function Underground({ size, variety }: UndergroundProps) {
 
 
   const doSwap = (selected: number, index: number) => {
+    setTimeout(() => {
+      console.log(123);
+      playSnapshots()
+    });
 
     console.log('doSwap');
 
@@ -139,17 +177,20 @@ function Underground({ size, variety }: UndergroundProps) {
     const swappedGrids = [...grids] // 拷贝
     Utils.swap(swappedGrids, index, selected);
     // 保存快照：swap
-    SnapshotsRef.current.push(swappedGrids)
+    SnapshotsRef.current.push({
+      g: swappedGrids,
+      i: [selected, index]
+    })
 
     if (doExplore(swappedGrids, [selected, index]) === false) {
 
       // 保存快照：undo swap
-      SnapshotsRef.current.push(grids)
+      SnapshotsRef.current.push({
+        g: grids,
+        i: [selected, index]
+      })
     }
 
-    Promise.resolve().then(() => {
-      playSnapshots()
-    })
   }
 
   // 看没有没有能消除的
@@ -190,9 +231,13 @@ function Underground({ size, variety }: UndergroundProps) {
       }
     }
 
+    const matchedBlocksFlat = matchedBlocks.flat()
     // 保存快照：mined
-    SnapshotsRef.current.push(minedGrids)
-    doFill(minedGrids, matchedBlocks.flat())
+    SnapshotsRef.current.push({
+      g: minedGrids,
+      i: matchedBlocksFlat
+    })
+    doFill(minedGrids, matchedBlocksFlat)
   }
 
   const doFill = (grids: GridData[], matchedPos: number[]) => {
@@ -233,22 +278,33 @@ function Underground({ size, variety }: UndergroundProps) {
     }
 
     // 保存快照：filled
-    SnapshotsRef.current.push(filledGrids)
+    SnapshotsRef.current.push({
+      g: filledGrids,
+      i: matchedPos
+    })
     doExplore(filledGrids, matchedPos)
   }
 
   const playSnapshots = () => {
     const nextGrids = SnapshotsRef.current.shift()
+    console.log('is next?', nextGrids);
+
     if (nextGrids) {
-      setGrids(nextGrids)
-      setTimeout(() => {
-        playSnapshots()
-      }, 500);
+      const { g, i } = nextGrids
+
+      setGrids(g)
+      queueAnimateEndRef.current = new Set(i)
     }
   }
   // 接收点击事件参数
   const clickHandler = (index: number) => {
     console.log('Selected:', grids[index]);
+    // 播放中不可选
+    if (
+      SnapshotsRef.current.length ||
+      queueAnimateEndRef.current.size
+    ) return
+
     // 已选
     if (selected >= 0) {
       // 选了同一个，取消选择
@@ -269,9 +325,21 @@ function Underground({ size, variety }: UndergroundProps) {
   }
 
   // 动画结束事件
-  const animateEndHandler = (id: GridData['id']) => {
-    console.log(id);
+  const animateEndHandler = (index: number) => {
+    console.log('animateEndHandler index', index);
 
+    const queueAnimateEnd = queueAnimateEndRef.current
+    console.log(queueAnimateEnd);
+
+    if (queueAnimateEnd.size === 0) return
+    queueAnimateEnd.delete(index)
+    if (queueAnimateEnd.size === 0) {
+      console.log('next!!!');
+
+      setTimeout(() => {
+        playSnapshots()
+      });
+    }
   }
 
   return <div className={style.Underground}>
@@ -288,7 +356,11 @@ function Underground({ size, variety }: UndergroundProps) {
               onAnimateEnd={animateEndHandler}
             />)
         else
-          return <Burst key={idx}></Burst>
+          return <Burst
+            key={idx}
+            index={idx}
+            onAnimateEnd={animateEndHandler}
+          ></Burst>
       })
     }
   </div >

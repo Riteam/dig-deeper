@@ -5,4 +5,5 @@
   user-select: none;
   background: url(./assets/img/deepslate.png);
   background-size: 64px;
+  overflow: hidden;
 }

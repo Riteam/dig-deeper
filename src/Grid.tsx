@@ -1,7 +1,6 @@
 import { useEffect, useRef, useContext, useLayoutEffect, useCallback } from 'react'
 import { SizeContext } from './App.tsx'
 import style from './Grid.module.css'
-import mojs from '@mojs/core'
 
 // imgs
 import redstone from './assets/img/redstone.png'
@@ -35,7 +34,24 @@ type GridProps = {
   onAnimateEnd: (id: number) => void
 }
 
-function Grid({ id, type, selected, index, initPos, onGridClick, onAnimateEnd }: GridProps) {
+const animate = (el: HTMLDivElement | null, offsetX: number, offsetY: number) => {
+  if (!el) throw new Error('no el');
+  const offset = Math.max(Math.abs(offsetX), Math.abs(offsetY))
+  return el.animate(
+    [
+      { transform: `translate(${offsetX * 64}px, ${offsetY * 64}px)` },
+      { transform: 'translate(0)' }
+    ],
+    {
+      duration: Math.min(200 + (offset - 1) * 100, 500),
+      // easing: 'ease-out',
+      // easing: 'cubic-bezier(.45,.14,.47,1.37)',
+      easing: 'cubic-bezier(.98,.67,.38,1.23)',
+    }
+  )
+}
+
+function Grid({ type, selected, index, initPos, onGridClick, onAnimateEnd }: GridProps) {
 
   const
     mine_icon = MineMap[type]
@@ -45,21 +61,11 @@ function Grid({ id, type, selected, index, initPos, onGridClick, onAnimateEnd }:
     , droppedRef = useRef(false)
 
   const doDrop = useCallback(() => {
-    if (initPos < 0) return
-    console.log(99999, id, index);
-
-    node.current?.animate(
-      [
-        { transform: `translate(0px, -${initPos * 64}px)` },
-        { transform: 'translate(0)' }
-      ],
-      {
-        duration: Math.abs(initPos) * 160,
-        easing: 'ease-in',
-      }
-    ).finished.then(() => {
-      onAnimateEnd(index)
-    });
+    if (initPos >= 0) {
+      animate(node.current, 0, -initPos).finished.then(() => {
+        onAnimateEnd(index)
+      });
+    }
   }, [initPos])
 
   const doMove = () => {
@@ -71,16 +77,7 @@ function Grid({ id, type, selected, index, initPos, onGridClick, onAnimateEnd }:
 
     if (offsetX || offsetY) {
       // 如果位置变化了，更新位置
-      node.current?.animate(
-        [
-          { transform: `translate(${offsetY * 64}px, ${offsetX * 64}px)` },
-          { transform: 'translate(0)' }
-        ],
-        {
-          duration: Math.max(Math.abs(offsetX), Math.abs(offsetY)) * 160,
-          easing: 'ease-in',
-        }
-      ).finished.then(() => {
+      animate(node.current, offsetY, offsetX).finished.then(() => {
         onAnimateEnd(index)
       });
     }

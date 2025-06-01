@@ -1,0 +1,19 @@
+.Inventory {
+  display: flex;
+}
+
+.Inventory .item {
+  display: flex;
+  align-items: end;
+  color: #fff;
+}
+
+.Inventory .item img {
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+
+.Inventory .item .count {
+  margin-right: 10px;
+}
