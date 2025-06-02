@@ -1,6 +1,9 @@
-import { useEffect, useRef, useContext, useLayoutEffect, useCallback } from 'react'
-import { SizeContext } from './App.tsx'
+import { useEffect, useRef, useContext, useLayoutEffect, useCallback, use } from 'react'
+import { AnimateEndContext } from './App.tsx'
+import Config from './assets/js/config'
 import style from './Grid.module.css'
+import Utils from "./assets/js/utils"
+import Bus from "./assets/js/bus"
 
 // imgs
 import redstone from './assets/img/redstone.png'
@@ -11,7 +14,8 @@ import diamond from './assets/img/diamond.png'
 import lazuli from "./assets/img/lazuli.png"
 import amethyst from "./assets/img/amethyst.png"
 
-import Utils from "./assets/js/utils"
+
+
 const { getXY } = Utils
 
 const MineMap = [
@@ -31,7 +35,6 @@ type GridProps = {
   initPos: number,
   selected: boolean,
   onGridClick: (index: number) => void
-  onAnimateEnd: (id: number) => void
 }
 
 const animate = (el: HTMLDivElement | null, offsetX: number, offsetY: number) => {
@@ -45,25 +48,29 @@ const animate = (el: HTMLDivElement | null, offsetX: number, offsetY: number) =>
     {
       duration: Math.min(200 + (offset - 1) * 100, 500),
       // easing: 'ease-out',
-      // easing: 'cubic-bezier(.45,.14,.47,1.37)',
       easing: 'cubic-bezier(.98,.67,.38,1.23)',
     }
   )
 }
 
-function Grid({ type, selected, index, initPos, onGridClick, onAnimateEnd }: GridProps) {
+
+const size = Config.Size
+function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
 
   const
-    mine_icon = MineMap[type]
-    , size = useContext(SizeContext)
+    mine_icon = MineMap[type] || ''
     , node = useRef<HTMLDivElement>(null)
     , prevIndex = useRef(index)
     , droppedRef = useRef(false)
+    , oreType = useRef(type)
+
+
+  const callAnimateEnd = useContext(AnimateEndContext)
 
   const doDrop = useCallback(() => {
     if (initPos >= 0) {
       animate(node.current, 0, -initPos).finished.then(() => {
-        onAnimateEnd(index)
+        callAnimateEnd(index)
       });
     }
   }, [initPos])
@@ -78,12 +85,13 @@ function Grid({ type, selected, index, initPos, onGridClick, onAnimateEnd }: Gri
     if (offsetX || offsetY) {
       // 如果位置变化了，更新位置
       animate(node.current, offsetY, offsetX).finished.then(() => {
-        onAnimateEnd(index)
+        callAnimateEnd(index)
       });
     }
 
     prevIndex.current = index // 保存新位置
   }
+
   useLayoutEffect(() => {
     if (droppedRef.current === false) {
       doDrop()
@@ -95,6 +103,21 @@ function Grid({ type, selected, index, initPos, onGridClick, onAnimateEnd }: Gri
       doMove()
   }, [index])
 
+
+  useEffect(() => {
+    if (type < 0) {
+      if (node.current) {
+        const rect = node.current.getBoundingClientRect()
+        Bus.emit('mined_ore_' + oreType.current, {
+          x: rect.left,
+          y: rect.top
+        })
+      }
+      setTimeout(() => {
+        callAnimateEnd(index)
+      }, 100);
+    }
+  }, [type])
   // useLayoutEffect(() => {
   //   if (droppedRef.current === false) {
   //     doDrop()
@@ -108,6 +131,9 @@ function Grid({ type, selected, index, initPos, onGridClick, onAnimateEnd }: Gri
   if (selected) {
     gridStyle += ' ' + style.selected
   }
+  if (type < 0) {
+    gridStyle += ' ' + style.hide
+  }
 
   return (
     <div
@@ -116,7 +142,7 @@ function Grid({ type, selected, index, initPos, onGridClick, onAnimateEnd }: Gri
       ref={node}
     >
       {index}
-      <img src={mine_icon} alt="" />
+      {mine_icon ? <img src={mine_icon} /> : null}
     </div>
   )
 }

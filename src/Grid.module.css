@@ -31,3 +31,7 @@
   border-radius: 4px;
   filter: brightness(1.2);
 }
+
+.grid.hide {
+  visibility: hidden;
+}

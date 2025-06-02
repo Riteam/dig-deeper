@@ -11,4 +11,6 @@ const Ores = [redstone, copper, gold, emerald, diamond, lazuli, amethyst]
 
 const Size = 8
 
-export { Size, Ores }
+const Variety = Ores.length
+
+export default { Size, Ores, Variety }

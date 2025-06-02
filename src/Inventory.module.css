@@ -1,14 +1,28 @@
 .Inventory {
+  position: relative;
   display: flex;
+  z-index: 2;
 }
 
 .Inventory .item {
   display: flex;
   align-items: end;
   color: #fff;
+  user-select: none;
+}
+
+.Inventory .item .imgBox {
+  position: relative;
+}
+
+.Inventory .item .imgBox .flying {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .Inventory .item img {
+  position: relative;
   display: block;
   width: 40px;
   height: 40px;

@@ -1,4 +1,5 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useContext, useCallback } from "react";
+import { AnimateEndContext } from './App.tsx'
 import mojs from "@mojs/core";
 import style from "./Burst.module.css";
 /**
@@ -8,18 +9,14 @@ import style from "./Burst.module.css";
  * <MojsExample duration={1000}/>
  */
 
-const moBurstConfig = {
-  radius: { 0: 100 }
-}
-
 type BurstProps = {
   index: number;
-  onAnimateEnd: (i: number) => void;
 };
 
-const Burst = ({ index, onAnimateEnd }: BurstProps) => {
+const Burst = ({ index }: BurstProps) => {
   const animDom = useRef(null);
   const moBurst = useRef(null);
+  const callAnimateEnd = useContext(AnimateEndContext)
 
   useEffect(() => {
     if (moBurst.current) return;
@@ -47,7 +44,7 @@ const Burst = ({ index, onAnimateEnd }: BurstProps) => {
         console.log('start');
       },
       onComplete() {
-        onAnimateEnd(index)
+        callAnimateEnd(index)
       },
     });
 
