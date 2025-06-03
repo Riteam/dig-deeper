@@ -45,8 +45,6 @@ export function genGrids(size: number, variety: number) {
       && grids[i - 1].type === grids[i - size].type
       && grids[i - 1].type === grids[i - size - 1].type
     ) {
-      console.log('差点有个方块', i);
-
       exclude.push(grids[i - 1].type)
     }
 

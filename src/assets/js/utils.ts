@@ -16,6 +16,14 @@ const Utils = {
   isAdjacent(i1: number, i2: number, rowDistance: number): boolean {
     return Math.abs(i1 - i2) === 1
       || Math.abs(i1 - i2) === rowDistance;
+  },
+
+  range(step: number, max: number, start = 0) {
+    const res = []
+    for (let i = start; i < max; i += step)
+      res.push(i)
+
+    return res
   }
 }
 

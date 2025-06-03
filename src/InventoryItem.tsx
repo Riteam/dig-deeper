@@ -27,11 +27,13 @@ function burstOn(el: HTMLElement, x: number, y: number) {
         '#878787',
       ],
       degreeShift: 'rand(0, 360)',
-      duration: 200,
+      duration: 400,
       rotate: { 0: 360 },
     },
     onComplete() {
-      b.el.parentElement.removeChild(b.el)
+      setTimeout(() => {
+        b.el.parentElement.removeChild(b.el)
+      });
     },
   });
   b.play()
@@ -44,10 +46,19 @@ function Inventory({ count, type }: InventoryItemProps) {
   const forCopy = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
-    console.log('Inventory item type', type);
 
+    // 跳动动画
+    const arrived = new mojs.Html({
+      el: forCopy.current,
+      scale: 1,
+      duration: 0
+    }).then({
+      scale: { 1.6: 1 },
+      duration: 200
+    })
+
+    // 矿石飞行动画
     Bus.on('mined_ore_' + type, ({ x, y }: { x: number, y: number }) => {
-      console.log(x, y);
 
       if (imgBox.current && forCopy.current) {
 
@@ -62,20 +73,18 @@ function Inventory({ count, type }: InventoryItemProps) {
           offsetY = y - top,
           distance = Math.sqrt(offsetX ** 2 + offsetY ** 2)
 
-        const dur = distance * (7 - (distance / 100 | 0)) * 0.3
-
         burstOn(imgBox.current, offsetX, offsetY)
-
         const fly = new mojs.Html({
           el: i,
           x: { [offsetX + 16]: 0 },
           y: { [offsetY + 16]: 0 },
-          scale: { 1.6: 1 },
-          opacity: 1,
-          duration: dur,
-          delay: 50,
+          scale: 1,
+          opacity: { 0.8: 0.5 },
+          duration: 100 + distance * 0.5,
+          delay: 60,
           onComplete: () => {
             imgBox.current?.removeChild(i)
+            arrived.replay()
           },
           easing: mojs.easing.ease.in
         })

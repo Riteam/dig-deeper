@@ -1,32 +1,17 @@
-import { useEffect, useRef, useContext, useLayoutEffect, useCallback, use } from 'react'
+import { useEffect, useRef, useContext, useLayoutEffect, useCallback } from 'react'
 import { AnimateEndContext } from './App.tsx'
 import Config from './assets/js/config'
 import style from './Grid.module.css'
 import Utils from "./assets/js/utils"
 import Bus from "./assets/js/bus"
 
-// imgs
-import redstone from './assets/img/redstone.png'
-import copper from './assets/img/copper.png'
-import gold from './assets/img/gold.png'
-import emerald from './assets/img/emerald.png'
-import diamond from './assets/img/diamond.png'
-import lazuli from "./assets/img/lazuli.png"
-import amethyst from "./assets/img/amethyst.png"
+// ore imgs
 
 
 
 const { getXY } = Utils
-
-const MineMap = [
-  redstone,
-  copper,
-  gold,
-  emerald,
-  diamond,
-  lazuli,
-  amethyst
-]
+const { Ores } = Config
+const { Wonders } = Config
 
 type GridProps = {
   type: number,
@@ -35,6 +20,13 @@ type GridProps = {
   initPos: number,
   selected: boolean,
   onGridClick: (index: number) => void
+}
+
+
+const getIconByType = (type: number) => {
+  if (type < 0) return ''
+  if (type > 100) return Wonders[type - 100]
+  return Ores[type]
 }
 
 const animate = (el: HTMLDivElement | null, offsetX: number, offsetY: number) => {
@@ -58,7 +50,7 @@ const size = Config.Size
 function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
 
   const
-    mine_icon = MineMap[type] || ''
+    icon = getIconByType(type)
     , node = useRef<HTMLDivElement>(null)
     , prevIndex = useRef(index)
     , droppedRef = useRef(false)
@@ -142,7 +134,7 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
       ref={node}
     >
       {index}
-      {mine_icon ? <img src={mine_icon} /> : null}
+      {icon ? <img src={icon} /> : null}
     </div>
   )
 }

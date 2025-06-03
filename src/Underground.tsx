@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import Grid from "./Grid"
-import Burst from './Burst'
+import Grid from './Grid'
 import style from './Underground.module.css'
 import Utils from "./assets/js/utils"
 import { type snapshot } from './App.tsx'
@@ -19,8 +18,12 @@ const variety = Config.Variety
 
 // 地下矿床组件
 function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
-
   const [selected, setSelected] = useState(-1)
+
+  useEffect(() => {
+    if (selectable === false)
+      setSelected(-1)
+  }, [selectable])
 
   const doSwap = (selected: number, index: number) => {
     console.log('doSwap');
@@ -64,7 +67,7 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       const iMatched4 = findSquare(grids, i)
 
       // 横竖3连优先
-      if (iMatched3.length) {
+      if (iMatched3.length && iMatched3.length >= iMatched4.length) {
         res.push(iMatched3)
         iMatched3.forEach(j => visited.add(j))
       }
@@ -148,13 +151,14 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       }
     }
 
+
     // 保存快照：filled
     saveSnapshot({
       t: 'filled',
       g: filledGrids,
       i: needFillPos
     })
-    doExplore(filledGrids, [...needFillPos, ...newPos])
+    doExplore(filledGrids, Utils.range(3, filledGrids.length))
   }
 
   // 接收点击事件参数
@@ -194,13 +198,6 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
             selected={idx === selected}
             onGridClick={clickHandler}
           />)
-        // if (data.type >= 0)
-
-        // else
-        //   return <Burst
-        //     key={data.id + 'burst'}
-        //     index={idx}
-        //   ></Burst>
       })
     }
   </div >

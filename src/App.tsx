@@ -13,6 +13,25 @@ export type snapshot = {
   i: number[]
 }
 
+const scoreCalculator = (countAtOnce: number) => {
+  let score = 100
+  countAtOnce -= 3
+
+  if (countAtOnce > 0) {
+    score += 150
+    countAtOnce--
+  }
+  if (countAtOnce > 0) {
+    score += 200
+    countAtOnce--
+  }
+  if (countAtOnce > 0) {
+    score += countAtOnce * 300
+  }
+
+  return score
+}
+
 // 初始化
 const defaultGrids = genGrids(Config.Size, Config.Variety)
 console.log('Generated grids:', defaultGrids);
@@ -27,13 +46,28 @@ const AnimateEndContext = createContext((_index: number) => { })
 let playTimer = 0
 
 function App() {
+  // 总分
   const [score, setScore] = useState(0)
-  const [grids, setGrids] = useState<GridData[]>(defaultGrids);
+  // 显示单次加分量
+  const [addingScore, setAddingScore] = useState(0)
+
+
+  // 是否正在播放
   const [isPlaying, setIsPlaying] = useState(false)
+
+  // 记录正在放动画的格子的 index
   const queueAnimateEndRef = useRef(new Set<number>())
+
+
+  // 游戏棋盘数据
+  const [grids, setGrids] = useState<GridData[]>(defaultGrids);
+  // 游戏快照，用于回溯和播放
   const SnapshotsRef = useRef<snapshot[]>([])
+
+  // 挖矿得到的矿石
   const [myOres, setMyOres] = useState(Array(Config.Variety).fill(0))
 
+  const [multiple, setMultiple] = useState(0)
 
   function saveSnapshotHandler(snapshot: snapshot) {
     console.log(snapshot);
@@ -41,7 +75,10 @@ function App() {
     SnapshotsRef.current.push(snapshot)
 
     clearTimeout(playTimer)
-    playTimer = setTimeout(playSnapshots)
+    playTimer = setTimeout(_ => {
+      setMultiple(0)
+      playSnapshots()
+    })
     // console.log('dothis', { playSnapshots, snaps: SnapshotsRef.current })
   }
 
@@ -51,6 +88,28 @@ function App() {
     if (nextGrids) {
       setIsPlaying(true)
       const { t, g, i } = nextGrids
+
+      // 计分
+      if (t === 'mined') {
+        const countAtOnce = i.length
+        const ores = [...myOres]
+        for (const index of i) {
+          const { type } = grids[index]
+          if (type >= 0) {
+            ores[type] += 1
+          }
+        }
+
+        const adding = scoreCalculator(countAtOnce)
+        setMyOres([...ores])
+
+        const mul = multiple + 1
+        setScore(pre => {
+          return pre + adding * mul
+        })
+        setMultiple(mul)
+        setAddingScore(adding)
+      }
 
       setGrids(g)
       queueAnimateEndRef.current = new Set(i.flat())
@@ -74,7 +133,10 @@ function App() {
   return (
     <>
       {/* <MojsExample duration={dur} /> */}
-      <h1>Dig Deeper</h1>
+      <h1>
+        {score} <span>+{addingScore}</span>
+        {multiple > 1 ? <span>x {multiple}</span> : null}
+      </h1>
       <Inventory items={myOres}></Inventory >
       <AnimateEndContext.Provider value={onAnimateEnd}>
         <MemoUnderground
