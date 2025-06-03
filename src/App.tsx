@@ -4,7 +4,6 @@ import Underground from './Underground';
 import Inventory from './Inventory';
 import Config from "./assets/js/config"
 import { genGrids, type GridData } from './assets/js/GridsMethods'
-// import MojsExample from './test.jsx';
 
 
 export type snapshot = {
@@ -79,7 +78,6 @@ function App() {
       setMultiple(0)
       playSnapshots()
     })
-    // console.log('dothis', { playSnapshots, snaps: SnapshotsRef.current })
   }
 
 
@@ -132,7 +130,6 @@ function App() {
 
   return (
     <>
-      {/* <MojsExample duration={dur} /> */}
       <h1>
         {score} <span>+{addingScore}</span>
         {multiple > 1 ? <span>x {multiple}</span> : null}

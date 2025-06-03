@@ -25,7 +25,7 @@ type GridProps = {
 
 const getIconByType = (type: number) => {
   if (type < 0) return ''
-  if (type > 100) return Wonders[type - 100]
+  if (type >= 100) return Wonders[type - 100]
   return Ores[type]
 }
 

@@ -2,9 +2,10 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import Grid from './Grid'
 import style from './Underground.module.css'
 import Utils from "./assets/js/utils"
-import { type snapshot } from './App.tsx'
-import { genGrid, findMatch3, findSquare, type GridData } from './assets/js/GridsMethods.ts'
+import { type snapshot } from './App'
+import { genGrid, findMatch3, findSquare, type GridData } from './assets/js/GridsMethods'
 import Config from "./assets/js/config"
+
 
 
 type UndergroundProps = {
@@ -28,7 +29,12 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
   const doSwap = (selected: number, index: number) => {
     console.log('doSwap');
 
-    // 核心思路：把后续一系列变化结果计算成grids的snapshot，然后一个个播放即可
+    /**
+     * 核心思路：
+     * 每次棋盘变化记录 grids 为 snapshot
+     * 按顺序存入数组
+     * 直到不能再消除后，从头取出播放即可
+     */
 
     const swappedGrids = [...grids] // 拷贝
     Utils.swap(swappedGrids, index, selected);
@@ -51,7 +57,7 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
 
   }
 
-  // 看没有没有能消除的
+  // 检查有无三连
   const doExplore = (grids: GridData[], startPos: number[]): boolean => {
 
     const res = []
@@ -78,12 +84,12 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       }
     }
 
-    console.log('doExplore startPos', startPos);
-    console.log('doExplore visited', visited);
-    console.log('doExplore Result', res);
+    console.log('doExplore startPos', startPos)
+    console.log('doExplore visited', visited)
+    console.log('doExplore Result', res)
 
     if (res.length) {
-      console.log('等待爆破组合', res);
+      console.log('等待爆破组合', res)
       doMine(grids, res)
     }
 
@@ -94,6 +100,8 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
 
     console.log('doMine');
 
+    const unique = new Set(matchedBlocks.flat())
+
     const minedGrids = [...grids]
     for (const pos of matchedBlocks) {
       for (const i of pos) {
@@ -102,9 +110,13 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
           type: -1
         }
       }
+      if (pos.length === 4) {
+        minedGrids[pos[0]].type = 100
+        unique.delete(pos[0])
+      }
     }
 
-    const matchedBlocksFlat = matchedBlocks.flat()
+    const matchedBlocksFlat = [...unique]
     // 保存快照：mined
     saveSnapshot({
       t: 'mined',
@@ -126,7 +138,6 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
     }
 
     // 遍历每[列]，确定底部坐标，从底部开始往上数
-    const newPos = [] // 新补充的方块需要在下一步检查三连
     for (const i of colsSet) {
       const bottom = size * (size - 1) + i
 
@@ -145,7 +156,6 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
 
       while (slow >= 0) {
         // 新补充的方块需要在下一步检查三连
-        newPos.push(slow)
         filledGrids[slow] = genGrid(variety, dropHeight)
         slow -= size
       }
