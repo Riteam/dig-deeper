@@ -4,6 +4,7 @@ import Underground from './Underground';
 import Inventory from './Inventory';
 import Config from "./assets/js/config"
 import { genGrids, type GridData } from './assets/js/GridsMethods'
+import AnimationLayout from "./AnimationLayout";
 
 
 export type snapshot = {
@@ -34,6 +35,10 @@ const scoreCalculator = (countAtOnce: number) => {
 // 初始化
 const defaultGrids = genGrids(Config.Size, Config.Variety)
 console.log('Generated grids:', defaultGrids);
+
+//test
+defaultGrids[26].type = 100
+defaultGrids[28].type = 100
 
 // ？？？
 const MemoUnderground = memo(Underground)
@@ -74,7 +79,7 @@ function App() {
     SnapshotsRef.current.push(snapshot)
 
     clearTimeout(playTimer)
-    playTimer = setTimeout(_ => {
+    playTimer = setTimeout(() => {
       setMultiple(0)
       playSnapshots()
     })
@@ -93,7 +98,7 @@ function App() {
         const ores = [...myOres]
         for (const index of i) {
           const { type } = grids[index]
-          if (type >= 0) {
+          if (type >= 0 && type < Config.Variety) {
             ores[type] += 1
           }
         }
@@ -141,6 +146,9 @@ function App() {
           saveSnapshot={saveSnapshotHandler}
           selectable={!isPlaying}
         ></MemoUnderground>
+
+
+        <AnimationLayout></AnimationLayout>
       </AnimateEndContext.Provider>
     </>
   )

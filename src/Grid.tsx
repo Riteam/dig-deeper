@@ -100,10 +100,7 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
     if (type < 0) {
       if (node.current) {
         const rect = node.current.getBoundingClientRect()
-        Bus.emit('mined_ore_' + oreType.current, {
-          x: rect.left,
-          y: rect.top
-        })
+        Bus.emit('mined_ore_' + oreType.current, rect)
       }
       setTimeout(() => {
         callAnimateEnd(index)

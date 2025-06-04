@@ -10,34 +10,7 @@ interface InventoryItemProps {
 }
 
 
-function burstOn(el: HTMLElement, x: number, y: number) {
-  const b = new mojs.Burst({
-    parent: el,
-    x: x + 16,
-    y: y + 16,
-    radius: { 0: 40 },
-    count: 6,
-    children: {
-      shape: 'rect',
-      radius: 6,
-      fill: [
-        '#B4B4B4',
-        '#DCDCDC',
-        '#FFFFFF',
-        '#878787',
-      ],
-      degreeShift: 'rand(0, 360)',
-      duration: 400,
-      rotate: { 0: 360 },
-    },
-    onComplete() {
-      setTimeout(() => {
-        b.el.parentElement.removeChild(b.el)
-      });
-    },
-  });
-  b.play()
-}
+
 
 
 function Inventory({ count, type }: InventoryItemProps) {
@@ -58,7 +31,9 @@ function Inventory({ count, type }: InventoryItemProps) {
     })
 
     // 矿石飞行动画
-    Bus.on('mined_ore_' + type, ({ x, y }: { x: number, y: number }) => {
+    Bus.on('mined_ore_' + type, ({ left: x, top: y }: DOMRect) => {
+
+      console.log(123);
 
       if (imgBox.current && forCopy.current) {
 
@@ -73,7 +48,7 @@ function Inventory({ count, type }: InventoryItemProps) {
           offsetY = y - top,
           distance = Math.sqrt(offsetX ** 2 + offsetY ** 2)
 
-        burstOn(imgBox.current, offsetX, offsetY)
+
         const fly = new mojs.Html({
           el: i,
           x: { [offsetX + 16]: 0 },

@@ -45,7 +45,14 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       i: [selected, index]
     })
 
-    if (doExplore(swappedGrids, [selected, index]) === false) {
+    // 处理TNT爆炸
+    if (
+      swappedGrids[selected].type === 100
+      || swappedGrids[index].type === 100
+    ) {
+      doExplode(swappedGrids, [selected, index])
+    }
+    else if (doExplore(swappedGrids, [selected, index]) === false) {
 
       // 保存快照：undo swap
       saveSnapshot({
@@ -89,7 +96,7 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
     console.log('doExplore Result', res)
 
     if (res.length) {
-      console.log('等待爆破组合', res)
+      console.log('等待开采组合', res)
       doMine(grids, res)
     }
 
@@ -110,7 +117,7 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
           type: -1
         }
       }
-      if (pos.length === 4) {
+      if (pos.length === 4 && minedGrids[pos[0]].type !== 100) {
         minedGrids[pos[0]].type = 100
         unique.delete(pos[0])
       }
@@ -124,6 +131,26 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       i: matchedBlocksFlat
     })
     doFill(minedGrids, matchedBlocksFlat)
+  }
+
+  const doExplode = (grids: GridData[], startPos: number[]) => {
+    const startIndex = grids[startPos[0]].type === 100 ? startPos[0] : startPos[1]
+    const pos = [startIndex]
+    const [row, col] = Utils.getXY(startIndex, size)
+
+    for (let i = Math.max(row - 2, 0); i <= Math.min(row + 2, size - 1); i++) {
+      for (let j = Math.max(col - 2, 0); j <= Math.min(col + 2, size - 1); j++) {
+        const ManhattanDistance = Math.abs(i - row) + Math.abs(j - col)
+        if (
+          ManhattanDistance > 0
+          && ManhattanDistance <= 2
+        ) {
+          pos.push(i * size + j)
+        }
+      }
+    }
+
+    doMine(grids, [pos])
   }
 
   const doFill = (grids: GridData[], needFillPos: number[]) => {
