@@ -27,7 +27,7 @@ const Burst = ({ index }: BurstProps) => {
       count: 6,
       children: {
         shape: 'rect',
-        radius: 6,
+        radius: 4,
         fill: [
           '#B4B4B4',
           '#DCDCDC',
@@ -35,7 +35,7 @@ const Burst = ({ index }: BurstProps) => {
           '#878787',
         ],
         degreeShift: 'rand(0, 360)',
-        duration: 200,
+        duration: 100,
         rotate: { 0: 360 },
       },
       // 事件

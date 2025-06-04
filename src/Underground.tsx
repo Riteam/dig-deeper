@@ -140,10 +140,10 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
 
     for (let i = Math.max(row - 2, 0); i <= Math.min(row + 2, size - 1); i++) {
       for (let j = Math.max(col - 2, 0); j <= Math.min(col + 2, size - 1); j++) {
-        const ManhattanDistance = Math.abs(i - row) + Math.abs(j - col)
+        const ManhattanDistance = Math.max(Math.abs(i - row), Math.abs(j - col))
         if (
           ManhattanDistance > 0
-          && ManhattanDistance <= 2
+          && ManhattanDistance <= 1
         ) {
           pos.push(i * size + j)
         }

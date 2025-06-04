@@ -16,23 +16,23 @@ function burstOn(x: number, y: number) {
       parent: Layout,
       x,
       y,
-      radius: { 0: 40 },
+      radius: { 0: 34 },
       count: 9,
       isShowEnd: false,
       children: {
         shape: 'rect',
-        radius: 6,
+        radius: 4,
         fill: [
           '#B4B4B4',
           '#DCDCDC',
           '#FFFFFF',
           '#878787',
         ],
-        scale: 1,
+        scale: { 1: 0.8 },
         opacity: { 1: 0.5 },
-        degreeShift: 'rand(0, 360)',
+        degreeShift: 'rand(0, 180)',
         rotate: 'rand(0, 360)',
-        duration: 400,
+        duration: 300,
         // rotate: { 0: 360 },
       }
     }))
@@ -41,17 +41,32 @@ function burstOn(x: number, y: number) {
   burst.replay()
 }
 
-export function BoomAt(x: number, y: number) {
+export function BoomAt(rect: DOMRect) {
+  const { x, y, width, height } = rect
+  if (!Layout) return
+  const iRect = Layout?.getBoundingClientRect()
+  const offsetX = x - iRect.x + width / 2
+  const offsetY = y - iRect.y + height / 2
+
   const e = new mojs.Shape({
+    parent: Layout,
+    x: offsetX,
+    y: offsetY,
     shape: 'circle',
-    fill: 'none',
-    stroke: { 'red': 'deeppink' },
+    fill: '#ddd',
+    // radius: { 0: 80 },
+    duration: 100,
+    // fill: 'none',
+    stroke: { '#ddd': 'gray' },
     scale: { 0: 1 },
+    radius: { 80: 100 },
     strokeWidth: { 100: 0 },
-    radius: 200,
-    x,
-    y,
-    duration: 500,
+    duration: 300,
+    easing: mojs.easing.cubic.out,
+    isShowEnd: false,
+    onComplete: () => {
+      console.log(123);
+    }
   })
 
   e.play()

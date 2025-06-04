@@ -4,10 +4,7 @@ import Config from './assets/js/config'
 import style from './Grid.module.css'
 import Utils from "./assets/js/utils"
 import Bus from "./assets/js/bus"
-
-// ore imgs
-
-
+import { BoomAt } from './AnimationLayout.tsx'
 
 const { getXY } = Utils
 const { Ores } = Config
@@ -101,7 +98,9 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
       if (node.current) {
         const rect = node.current.getBoundingClientRect()
         Bus.emit('mined_ore_' + oreType.current, rect)
-
+        if (oreType.current === 100) {
+          BoomAt(rect)
+        }
       }
       setTimeout(() => {
         callAnimateEnd(index)
