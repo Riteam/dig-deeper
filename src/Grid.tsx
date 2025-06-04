@@ -101,6 +101,7 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
       if (node.current) {
         const rect = node.current.getBoundingClientRect()
         Bus.emit('mined_ore_' + oreType.current, rect)
+
       }
       setTimeout(() => {
         callAnimateEnd(index)
