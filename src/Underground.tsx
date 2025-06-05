@@ -6,6 +6,7 @@ import { type snapshot } from './App'
 import { genGrid, findMatch3, findSquare, type GridData } from './assets/js/GridsMethods'
 import Config from "./assets/js/config"
 
+let iii = 1
 
 
 type UndergroundProps = {
@@ -107,18 +108,29 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
 
     console.log('doMine');
 
-    const unique = new Set(matchedBlocks.flat())
+    const unique = new Set<number>()
 
     const minedGrids = [...grids]
+    const encounterTNT: number[] = []
     for (const pos of matchedBlocks) {
       for (const i of pos) {
-        minedGrids[i] = {
-          ...minedGrids[i],
-          type: -1
+        const grid = minedGrids[i]
+        if (grid.type === 100) {
+          encounterTNT.push(i)
+        }
+        else if (grid.type !== -1) {
+          unique.add(i)
+          minedGrids[i] = {
+            ...grid,
+            type: -1
+          }
         }
       }
-      if (pos.length === 4 && minedGrids[pos[0]].type !== 100) {
-        minedGrids[pos[0]].type = 100
+
+      if (pos.length === 4 && grids[pos[0]].type !== 100) {
+        const TNT = genGrid(variety)
+        TNT.type = 100
+        minedGrids[pos[0]] = TNT
         unique.delete(pos[0])
       }
     }
@@ -130,11 +142,19 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       g: minedGrids,
       i: matchedBlocksFlat
     })
-    doFill(minedGrids, matchedBlocksFlat)
+    if (encounterTNT.length) {
+      for (const i of encounterTNT)
+        // console.log(1111, encounterTNT);
+
+        doExplode(minedGrids, [i])
+    } else {
+      doFill(minedGrids, matchedBlocksFlat)
+    }
   }
 
   const doExplode = (grids: GridData[], startPos: number[]) => {
     const startIndex = grids[startPos[0]].type === 100 ? startPos[0] : startPos[1]
+
     const pos = [startIndex]
     const [row, col] = Utils.getXY(startIndex, size)
 
@@ -142,15 +162,25 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       for (let j = Math.max(col - 2, 0); j <= Math.min(col + 2, size - 1); j++) {
         const ManhattanDistance = Math.max(Math.abs(i - row), Math.abs(j - col))
         if (
-          ManhattanDistance > 0
-          && ManhattanDistance <= 1
+          ManhattanDistance === 1
         ) {
           pos.push(i * size + j)
         }
       }
     }
 
-    doMine(grids, [pos])
+    const g = [...grids]
+    g[startIndex] = {
+      ...g[startIndex],
+      type: -1
+    }
+
+    console.log(2222, pos);
+
+
+    iii++
+    if (iii >= 3) return
+    doMine(g, [pos])
   }
 
   const doFill = (grids: GridData[], needFillPos: number[]) => {

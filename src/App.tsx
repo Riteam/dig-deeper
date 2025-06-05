@@ -3,7 +3,7 @@ import './App.css'
 import Underground from './Underground';
 import Inventory from './Inventory';
 import Config from "./assets/js/config"
-import { genGrids, type GridData } from './assets/js/GridsMethods'
+import { checkGrids, genGrids, type GridData } from './assets/js/GridsMethods'
 import AnimationLayout from "./AnimationLayout";
 
 
@@ -37,8 +37,9 @@ const defaultGrids = genGrids(Config.Size, Config.Variety)
 console.log('Generated grids:', defaultGrids);
 
 //test
-defaultGrids[26].type = 100
-defaultGrids[28].type = 100
+
+defaultGrids[13].type = 100
+defaultGrids[30].type = 100
 
 // ？？？
 const MemoUnderground = memo(Underground)
@@ -116,7 +117,14 @@ function App() {
 
       setGrids(g)
       queueAnimateEndRef.current = new Set(i.flat())
+      console.log(t, queueAnimateEndRef.current);
+
     } else {
+      // 播放结束
+      if (checkGrids(grids) === false) {
+        alert('Game Over')
+      }
+
       setIsPlaying(false)
     }
   }

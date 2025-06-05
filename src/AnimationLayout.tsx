@@ -11,7 +11,6 @@ const usedBurst = new Map()
 function burstOn(x: number, y: number) {
   const name = x + ',' + y
   if (!usedBurst.has(name)) {
-    console.log(usedBurst);
     usedBurst.set(name, new mojs.Burst({
       parent: Layout,
       x,
@@ -53,10 +52,10 @@ export function BoomAt(rect: DOMRect) {
     x: offsetX,
     y: offsetY,
     shape: 'circle',
-    fill: '#ddd',
+    // fill: '#ddd',
     // radius: { 0: 80 },
-    duration: 100,
-    // fill: 'none',
+    // duration: 100,
+    fill: 'none',
     stroke: { '#ddd': 'gray' },
     scale: { 0: 1 },
     radius: { 80: 100 },
@@ -83,10 +82,6 @@ for (let i = 0; i < Variety; i++) {
     }
   })
 }
-
-Bus.on('Boom', ({ x, y }: DOMRect) => {
-  BoomAt(x, y)
-})
 
 export default function AnimationLayout() {
   const layoutRef = useRef<HTMLDivElement>(null)

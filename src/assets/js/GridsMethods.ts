@@ -53,6 +53,44 @@ export function genGrids(size: number, variety: number) {
   return grids
 }
 
+function swapAndCheck(grids: GridData[], i1: number, i2: number) {
+  Utils.swap(grids, i1, i2)
+
+  for (const i of [i1, i2]) {
+    const l1 = findMatch3(grids, i).length
+    const l2 = findSquare(grids, i).length
+    if (l1 + l2 > 0) {
+      Utils.swap(grids, i1, i2)
+      return true
+    }
+  }
+
+  Utils.swap(grids, i2, i1)
+  return false
+}
+export function checkGrids(grids: GridData[]) {
+  const size = grids.length ** 0.5
+  for (let i = 0; i < grids.length; i++) {
+
+    // 有TNT直接返回true
+    if (grids[i].type === 100) return true
+
+    const [row, col] = Utils.getXY(i, size)
+    // 向右交换
+    if (row < size - 1) {
+      if (swapAndCheck(grids, i, i + 1))
+        return [i, i + 1]
+    }
+    // 向下交换
+    if (col < size - 1) {
+      if (swapAndCheck(grids, i, i + size))
+        return [i, i + size]
+    }
+  }
+
+  return false
+}
+
 
 export function findMatch3(
   grids: GridData[],
@@ -107,24 +145,37 @@ export function findMatch3(
     res.push(...upPoints, ...downPoints);
   }
 
-  if (res.length) res.push(startIndex)
+  if (res.length) res.unshift(startIndex)
 
   return [...new Set(res)]
 }
 
+function isInBoundary(i: number, size: number) {
+  return i >= 0 && i < size
+}
 export function findSquare(grids: GridData[], startIndex: number) {
   const size = grids.length ** .5
-
   const { type } = grids[startIndex]
+  const dir = [
+    [-1, -1],
+    [-1, 1],
+    [1, -1],
+    [1, 1]
+  ]
+  const [col, row] = Utils.getXY(startIndex, size)
 
-  function getFour(idx: number): number[] {
-    return [idx, idx + 1, idx + size, idx + size + 1]
-  }
-  for (const i of getFour(startIndex - size - 1)) {
-    if (i >= 0) {
-      const currFour = getFour(i)
-      if (currFour.every(j => grids[j]?.type === type)) {
-        return currFour
+  for (const [d1, d2] of dir) {
+    const c = col + d1
+    const r = row + d2
+    if (isInBoundary(c, size) && isInBoundary(r, size)) {
+      const res = [
+        startIndex,
+        Utils.toIndex(size, c, r),
+        Utils.toIndex(size, col, r),
+        Utils.toIndex(size, c, row)
+      ]
+      if (res.every(i => grids[i].type === type)) {
+        return res
       }
     }
   }

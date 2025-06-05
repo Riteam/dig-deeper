@@ -42,6 +42,20 @@ const animate = (el: HTMLDivElement | null, offsetX: number, offsetY: number) =>
   )
 }
 
+function showUp(el: HTMLDivElement | null) {
+  if (!el) throw new Error('no el');
+  return el.animate(
+    [
+      { transform: `scale(0)` },
+      { transform: 'scale(1)' }
+    ],
+    {
+      duration: 300,
+      easing: 'cubic-bezier(.98,.67,.38,1.23)',
+    }
+  )
+}
+
 
 const size = Config.Size
 function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
@@ -52,6 +66,7 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
     , prevIndex = useRef(index)
     , droppedRef = useRef(false)
     , oreType = useRef(type)
+    , showAnimationPlayed = useRef(false)
 
 
   const callAnimateEnd = useContext(AnimateEndContext)
@@ -104,15 +119,24 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
       }
       setTimeout(() => {
         callAnimateEnd(index)
-      }, 100);
+      }, 140);
     }
+
   }, [type])
-  // useLayoutEffect(() => {
-  //   if (droppedRef.current === false) {
-  //     doDrop()
-  //     droppedRef.current = true
-  //   }
-  // }, [])
+
+
+  // 特殊道具出现动画
+  useLayoutEffect(() => {
+    if (type === 100 && !showAnimationPlayed.current) {
+      showAnimationPlayed.current = true
+      showUp(node.current)
+        .finished
+        .then(() => {
+          console.log('特殊道具出现动画');
+          callAnimateEnd(index)
+        });
+    }
+  }, [])
 
   // 基本样式
   let gridStyle = style.grid
