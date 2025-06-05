@@ -1,4 +1,4 @@
-let idCount = 1
+let idCount = 1000
 
 const Utils = {
   getXY(index: number, size: number): [number, number] {

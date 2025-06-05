@@ -54,8 +54,8 @@ export function genGrids(size: number, variety: number) {
 }
 
 function swapAndCheck(grids: GridData[], i1: number, i2: number) {
+  // if (Utils.isAdjacent(i1, i2, grids.length ** 0.5)) return false
   Utils.swap(grids, i1, i2)
-
   for (const i of [i1, i2]) {
     const l1 = findMatch3(grids, i).length
     const l2 = findSquare(grids, i).length
@@ -162,18 +162,20 @@ export function findSquare(grids: GridData[], startIndex: number) {
     [1, -1],
     [1, 1]
   ]
-  const [col, row] = Utils.getXY(startIndex, size)
+  const [row, col] = Utils.getXY(startIndex, size)
 
   for (const [d1, d2] of dir) {
-    const c = col + d1
-    const r = row + d2
+    const r = row + d1
+    const c = col + d2
+
     if (isInBoundary(c, size) && isInBoundary(r, size)) {
       const res = [
         startIndex,
-        Utils.toIndex(size, c, r),
-        Utils.toIndex(size, col, r),
-        Utils.toIndex(size, c, row)
+        Utils.toIndex(size, r, c),
+        Utils.toIndex(size, r, col),
+        Utils.toIndex(size, row, c)
       ]
+
       if (res.every(i => grids[i].type === type)) {
         return res
       }
@@ -181,4 +183,14 @@ export function findSquare(grids: GridData[], startIndex: number) {
   }
 
   return []
+}
+
+export function shuffle(grids: GridData[]) {
+  const g = [...grids]
+  for (let i = 0; i < g.length; i++) {
+    const j = Math.random() * g.length | 0
+    Utils.swap(g, i, j)
+  }
+  if (checkGrids(g)) return g
+  else return shuffle(g)
 }

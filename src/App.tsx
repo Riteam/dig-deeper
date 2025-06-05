@@ -3,7 +3,7 @@ import './App.css'
 import Underground from './Underground';
 import Inventory from './Inventory';
 import Config from "./assets/js/config"
-import { checkGrids, genGrids, type GridData } from './assets/js/GridsMethods'
+import { checkGrids, genGrids, shuffle, type GridData } from './assets/js/GridsMethods'
 import AnimationLayout from "./AnimationLayout";
 
 
@@ -13,6 +13,7 @@ export type snapshot = {
   i: number[]
 }
 
+// 分数计算规则
 const scoreCalculator = (countAtOnce: number) => {
   let score = 100
   countAtOnce -= 3
@@ -36,10 +37,9 @@ const scoreCalculator = (countAtOnce: number) => {
 const defaultGrids = genGrids(Config.Size, Config.Variety)
 console.log('Generated grids:', defaultGrids);
 
-//test
-
-defaultGrids[13].type = 100
-defaultGrids[30].type = 100
+defaultGrids[27].type = 100
+defaultGrids[36].type = 100
+defaultGrids[19].type = 100
 
 // ？？？
 const MemoUnderground = memo(Underground)
@@ -121,8 +121,10 @@ function App() {
 
     } else {
       // 播放结束
-      if (checkGrids(grids) === false) {
-        alert('Game Over')
+      const able = checkGrids(grids)
+      if (able === false) {
+        console.log(JSON.stringify(grids));
+        setGrids(shuffle(grids))
       }
 
       setIsPlaying(false)

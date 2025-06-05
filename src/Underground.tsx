@@ -6,8 +6,6 @@ import { type snapshot } from './App'
 import { genGrid, findMatch3, findSquare, type GridData } from './assets/js/GridsMethods'
 import Config from "./assets/js/config"
 
-let iii = 1
-
 
 type UndergroundProps = {
   grids: GridData[];
@@ -144,8 +142,6 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
     })
     if (encounterTNT.length) {
       for (const i of encounterTNT)
-        // console.log(1111, encounterTNT);
-
         doExplode(minedGrids, [i])
     } else {
       doFill(minedGrids, matchedBlocksFlat)
@@ -158,8 +154,8 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
     const pos = [startIndex]
     const [row, col] = Utils.getXY(startIndex, size)
 
-    for (let i = Math.max(row - 2, 0); i <= Math.min(row + 2, size - 1); i++) {
-      for (let j = Math.max(col - 2, 0); j <= Math.min(col + 2, size - 1); j++) {
+    for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, size - 1); i++) {
+      for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, size - 1); j++) {
         const ManhattanDistance = Math.max(Math.abs(i - row), Math.abs(j - col))
         if (
           ManhattanDistance === 1
@@ -175,11 +171,6 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       type: -1
     }
 
-    console.log(2222, pos);
-
-
-    iii++
-    if (iii >= 3) return
     doMine(g, [pos])
   }
 
@@ -189,12 +180,15 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
     console.log('doFill');
 
     // 把需要补的[列]找出来
-    const colsSet = new Set<number>()
-    for (const i of needFillPos) {
-      colsSet.add(i % size)
-    }
+    // const colsSet = new Set<number>()
+    // for (const i of needFillPos) {
+    //   colsSet.add(i % size)
+    // }
 
     // 遍历每[列]，确定底部坐标，从底部开始往上数
+    const colsSet = Utils.range(1, 8)
+    const changedIndex: number[] = []
+
     for (const i of colsSet) {
       const bottom = size * (size - 1) + i
 
@@ -214,16 +208,16 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       while (slow >= 0) {
         // 新补充的方块需要在下一步检查三连
         filledGrids[slow] = genGrid(variety, dropHeight)
+        changedIndex.push(slow)
         slow -= size
       }
     }
-
 
     // 保存快照：filled
     saveSnapshot({
       t: 'filled',
       g: filledGrids,
-      i: needFillPos
+      i: changedIndex
     })
     doExplore(filledGrids, Utils.range(3, filledGrids.length))
   }

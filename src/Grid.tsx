@@ -81,14 +81,14 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
 
   const doMove = () => {
     const
-      [x, y] = getXY(index, size)
-      , [prevX, prevY] = getXY(prevIndex.current, size)
-      , offsetX = prevX - x
-      , offsetY = prevY - y
+      [r1, c1] = getXY(index, size)
+      , [r2, c2] = getXY(prevIndex.current, size)
+      , offsetRows = r2 - r1
+      , offsetCols = c2 - c1
 
-    if (offsetX || offsetY) {
+    if (offsetRows || offsetCols) {
       // 如果位置变化了，更新位置
-      animate(node.current, offsetY, offsetX).finished.then(() => {
+      animate(node.current, offsetCols, offsetRows).finished.then(() => {
         callAnimateEnd(index)
       });
     }
@@ -102,9 +102,9 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
       droppedRef.current = true
       return
     }
-
-    else
+    else {
       doMove()
+    }
   }, [index])
 
 
