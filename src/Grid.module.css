@@ -25,6 +25,26 @@
   pointer-events: none;
 }
 
+.grid .netherStartGlow {
+  filter: blur(1px) brightness(2);
+  scale: 1.1;
+  animation: flash 2s linear infinite;
+}
+
+@keyframes flash {
+  10% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  90% {
+    opacity: 1;
+  }
+}
+
 .grid.selected {
   outline: 4px solid rgb(173, 255, 47);
   z-index: 2;

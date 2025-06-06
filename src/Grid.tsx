@@ -119,7 +119,7 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
       }
       setTimeout(() => {
         callAnimateEnd(index)
-      }, 140);
+      }, 70);
     }
 
   }, [type])
@@ -155,6 +155,7 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
       ref={node}
     >
       {index}
+      {type === 101 ? <img className={style.netherStartGlow} src={icon} /> : null}
       {icon ? <img src={icon} /> : null}
     </div>
   )

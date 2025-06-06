@@ -36,10 +36,8 @@ const scoreCalculator = (countAtOnce: number) => {
 // 初始化
 const defaultGrids = genGrids(Config.Size, Config.Variety)
 console.log('Generated grids:', defaultGrids);
-
-defaultGrids[27].type = 100
-defaultGrids[36].type = 100
-defaultGrids[19].type = 100
+defaultGrids[27].type = 101
+defaultGrids[12].type = 100
 
 // ？？？
 const MemoUnderground = memo(Underground)

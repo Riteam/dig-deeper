@@ -3,7 +3,7 @@ import Grid from './Grid'
 import style from './Underground.module.css'
 import Utils from "./assets/js/utils"
 import { type snapshot } from './App'
-import { genGrid, findMatch3, findSquare, type GridData } from './assets/js/GridsMethods'
+import { genGrid, findMatch3, findSquare, destroyGrid, findInChebyshev, type GridData, findRowIndexes, findColIndexes } from './assets/js/GridsMethods'
 import Config from "./assets/js/config"
 
 
@@ -44,14 +44,15 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       i: [selected, index]
     })
 
-    // 处理TNT爆炸
-    if (
-      swappedGrids[selected].type === 100
-      || swappedGrids[index].type === 100
-    ) {
-      doExplode(swappedGrids, [selected, index])
+    // 处理TNT爆炸&十字连
+    for (const i of [index, selected]) {
+      if (swappedGrids[i].type >= 100) {
+        doMine(swappedGrids, [[i]])
+        return
+      }
     }
-    else if (doExplore(swappedGrids, [selected, index]) === false) {
+
+    if (doExplore(swappedGrids, [selected, index]) === false) {
 
       // 保存快照：undo swap
       saveSnapshot({
@@ -102,34 +103,133 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
     return res.length > 0
   }
 
+
+  const doCross = (grids: GridData[], starsIndexes: number[]) => {
+    // const g = [...grids]
+    const destroyedIndexes = new Set<number>()
+
+    for (const i of starsIndexes) {
+      // destroyGrid(g, i)
+      // destroyedIndexes.push(i)
+
+      const crossIndexes = [...findRowIndexes(i, size), ...findColIndexes(i, size)]
+
+      for (const j of crossIndexes) {
+        // if (g[j].type === 100) {
+
+        // } else if (g[j].type !== -1) {
+        // destroyGrid(g, j)
+        destroyedIndexes.add(j)
+        // }
+      }
+
+    }
+
+    console.log(111111, destroyedIndexes);
+
+    return [...destroyedIndexes]
+
+
+    // // 保存快照：exploded
+    // saveSnapshot({
+    //   t: 'mined',
+    //   g,
+    //   i: destroyedIndexes
+    // })
+
+    // doFill(g)
+  }
+  const doExplode = (grids: GridData[], TNTindexes: number[]) => {
+    console.log('doExplode');
+
+    // const g = [...grids]
+
+
+    const destroyedIndexes = new Set<number>()
+    // const withinTNTs = new Set<number>()
+
+    for (const index of TNTindexes) {
+      // destroyGrid(g, index)
+      // destroyedIndexes.push(index)
+
+
+      // 检查周围8格
+      const indexes = findInChebyshev(grids, index, 1)
+
+      for (const index of indexes) {
+        // const { type } = g[index]
+        // if (type === 100) {
+        //   withinTNTs.push(index)
+        // }
+        // else if (type !== -1) {
+        // destroyGrid(g, index)
+        destroyedIndexes.add(index)
+      }
+    }
+
+    return [...destroyedIndexes]
+  }
+
+  // // 保存快照：exploded
+  // saveSnapshot({
+  //   t: 'mined',
+  //   g,
+  //   i: destroyedIndexes
+  // })
+
+  // if (withinTNTs.length) {
+  //   doExplode(g, withinTNTs)
+  // }
+  // else {
+  //   doFill(g)
+  // }
+  // }
+
+
   const doMine = (grids: GridData[], matchedBlocks: number[][]) => {
 
     console.log('doMine');
+    const minedGrids = [...grids]
 
     const unique = new Set<number>()
+    const withinWonders = new Set<number>()
+    const addingBlocks = new Set<number>()
 
-    const minedGrids = [...grids]
-    const encounterTNT: number[] = []
     for (const pos of matchedBlocks) {
       for (const i of pos) {
-        const grid = minedGrids[i]
-        if (grid.type === 100) {
-          encounterTNT.push(i)
+        const { type } = minedGrids[i]
+        console.log(9999999, minedGrids[i]);
+
+        destroyGrid(minedGrids, i)
+        if (type === 100) {
+          doExplode(minedGrids, [i]).forEach(j => addingBlocks.add(j))
+        } else if (type === 101) {
+          doCross(minedGrids, [i]).forEach(j => addingBlocks.add(j))
         }
-        else if (grid.type !== -1) {
+        else if (type !== -1) {
           unique.add(i)
-          minedGrids[i] = {
-            ...grid,
-            type: -1
-          }
         }
       }
 
-      if (pos.length === 4 && grids[pos[0]].type !== 100) {
-        const TNT = genGrid(variety)
-        TNT.type = 100
-        minedGrids[pos[0]] = TNT
-        unique.delete(pos[0])
+      // if (pos.length === 4 && grids[pos[0]].type !== 100) {
+      //   const TNT = genGrid(variety)
+      //   TNT.type = 100
+      //   minedGrids[pos[0]] = TNT
+      //   unique.delete(pos[0])
+      // }
+    }
+
+
+    console.log(addingBlocks);
+
+    for (const i of addingBlocks) {
+      const { type } = minedGrids[i]
+      if (type >= 100) {
+        withinWonders.add(i)
+      }
+      else {
+        destroyGrid(minedGrids, i)
+        unique.add(i)
       }
     }
 
@@ -140,41 +240,15 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       g: minedGrids,
       i: matchedBlocksFlat
     })
-    if (encounterTNT.length) {
-      for (const i of encounterTNT)
-        doExplode(minedGrids, [i])
+
+    if (withinWonders.size) {
+      doMine(minedGrids, [[...withinWonders]])
     } else {
-      doFill(minedGrids, matchedBlocksFlat)
+      doFill(minedGrids)
     }
   }
 
-  const doExplode = (grids: GridData[], startPos: number[]) => {
-    const startIndex = grids[startPos[0]].type === 100 ? startPos[0] : startPos[1]
-
-    const pos = [startIndex]
-    const [row, col] = Utils.getXY(startIndex, size)
-
-    for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, size - 1); i++) {
-      for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, size - 1); j++) {
-        const ManhattanDistance = Math.max(Math.abs(i - row), Math.abs(j - col))
-        if (
-          ManhattanDistance === 1
-        ) {
-          pos.push(i * size + j)
-        }
-      }
-    }
-
-    const g = [...grids]
-    g[startIndex] = {
-      ...g[startIndex],
-      type: -1
-    }
-
-    doMine(g, [pos])
-  }
-
-  const doFill = (grids: GridData[], needFillPos: number[]) => {
+  const doFill = (grids: GridData[]) => {
 
     const filledGrids = [...grids]
     console.log('doFill');

@@ -194,3 +194,55 @@ export function shuffle(grids: GridData[]) {
   if (checkGrids(g)) return g
   else return shuffle(g)
 }
+
+
+export function destroyGrid(grids: GridData[], index: number) {
+  if (grids[index].type === -1) return
+  grids[index] = {
+    ...grids[index],
+    type: -1
+  }
+}
+
+export function findInChebyshev(grids: GridData[], index: number, distance: number) {
+  const size = grids.length ** .5
+  const [row, col] = Utils.getXY(index, size)
+  const res = []
+  const left = Math.max(0, col - distance)
+    , right = Math.min(size - 1, col + distance)
+    , top = Math.max(0, row - distance)
+    , bottom = Math.min(size - 1, row + distance)
+
+  for (let i = top; i <= bottom; i++) {
+    for (let j = left; j <= right; j++) {
+      const index = i * size + j
+      res.push(index)
+    }
+  }
+  console.log(res);
+
+  return res
+
+}
+
+export function findRowIndexes(startIndex: number, size: number) {
+  const [row] = Utils.getXY(startIndex, size)
+  const res = []
+  for (let i = 0; i < size; i++) {
+    const index = row * size + i
+    if (index !== startIndex)
+      res.push(index)
+  }
+  return res
+}
+
+export function findColIndexes(startIndex: number, size: number) {
+  const [, col] = Utils.getXY(startIndex, size)
+  const res = []
+  for (let i = 0; i < size; i++) {
+    const index = i * size + col
+    if (index !== startIndex)
+      res.push(i * size + col)
+  }
+  return res
+}
