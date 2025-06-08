@@ -3,7 +3,7 @@ import Grid from './Grid'
 import style from './Underground.module.css'
 import Utils from "./assets/js/utils"
 import { type snapshot } from './App'
-import { genGrid, findMatch3, findSquare, destroyGrid, findInChebyshev, type GridData, findRowIndexes, findColIndexes } from './assets/js/GridsMethods'
+import { genGrid, findMatch3, findSquare, destroyGrid, findInChebyshev, type GridData, findRowIndexes, findColIndexes, isAllSameType } from './assets/js/GridsMethods'
 import Config from "./assets/js/config"
 
 
@@ -105,64 +105,31 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
 
 
   const doCross = (grids: GridData[], starsIndexes: number[]) => {
-    // const g = [...grids]
     const destroyedIndexes = new Set<number>()
 
     for (const i of starsIndexes) {
-      // destroyGrid(g, i)
-      // destroyedIndexes.push(i)
 
       const crossIndexes = [...findRowIndexes(i, size), ...findColIndexes(i, size)]
 
       for (const j of crossIndexes) {
-        // if (g[j].type === 100) {
-
-        // } else if (g[j].type !== -1) {
-        // destroyGrid(g, j)
         destroyedIndexes.add(j)
-        // }
       }
 
     }
 
-    console.log(111111, destroyedIndexes);
-
     return [...destroyedIndexes]
-
-
-    // // 保存快照：exploded
-    // saveSnapshot({
-    //   t: 'mined',
-    //   g,
-    //   i: destroyedIndexes
-    // })
-
-    // doFill(g)
   }
   const doExplode = (grids: GridData[], TNTindexes: number[]) => {
     console.log('doExplode');
 
-    // const g = [...grids]
-
-
     const destroyedIndexes = new Set<number>()
-    // const withinTNTs = new Set<number>()
 
     for (const index of TNTindexes) {
-      // destroyGrid(g, index)
-      // destroyedIndexes.push(index)
-
 
       // 检查周围8格
       const indexes = findInChebyshev(grids, index, 1)
 
       for (const index of indexes) {
-        // const { type } = g[index]
-        // if (type === 100) {
-        //   withinTNTs.push(index)
-        // }
-        // else if (type !== -1) {
-        // destroyGrid(g, index)
         destroyedIndexes.add(index)
       }
     }
@@ -170,67 +137,121 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
     return [...destroyedIndexes]
   }
 
-  // // 保存快照：exploded
-  // saveSnapshot({
-  //   t: 'mined',
-  //   g,
-  //   i: destroyedIndexes
-  // })
 
-  // if (withinTNTs.length) {
-  //   doExplode(g, withinTNTs)
-  // }
-  // else {
-  //   doFill(g)
-  // }
-  // }
-
-
-  const doMine = (grids: GridData[], matchedBlocks: number[][]) => {
-
+  const doMine = (grids: GridData[], matchedGroups: number[][]) => {
     console.log('doMine');
     const minedGrids = [...grids]
 
     const unique = new Set<number>()
     const withinWonders = new Set<number>()
-    const addingBlocks = new Set<number>()
+    const moreToDestroy = new Set<number>()
+    const addingWonders: [number, GridData['type']][] = []
 
-    for (const pos of matchedBlocks) {
-      for (const i of pos) {
+    for (const group of matchedGroups) {
+      // 检查是否所有方块类型相同
+      console.log(Utils.isSquareShape);
+      const allSameType = isAllSameType(minedGrids, group)
+
+      // 检测特殊形状，在破坏后添加神奇道具
+      if (allSameType) {
+        if (group.length === 4) {
+          // 判断是否为2x2方块
+          const isSquare = Utils.isSquareShape(group, size)
+
+          if (isSquare) {
+            // 执行A: 2x2方块生成TNT
+            // const TNT = genGrid(variety)
+            addingWonders.push([group[0], 100])
+            // TNT.type = 100 // TNT类型
+            // minedGrids[group[0]] = TNT
+            // unique.delete(group[0])
+            // console.log('生成TNT')
+          } else {
+            // 执行B: 4格直线
+          }
+        }
+        else if (group.length > 4) {
+          // 判断形状
+          const shape = getShapeType(group, size)
+          console.log(99999999, shape);
+
+          switch (shape) {
+            case 'line':
+            // 执行C: 直线消除整行/列
+            // const linePoints = Utils.findLongestLine(group.map(p => Utils.getXY(p, size)), true)
+            // const isHorizontal = linePoints[0][1] === linePoints[1][1]
+            // const lineIndex = isHorizontal ? linePoints[0][1] : linePoints[0][0]
+
+            // // 消除整行或整列
+            // for (let i = 0; i < size; i++) {
+            //   const index = isHorizontal ?
+            //     Utils.toIndex(size, lineIndex, i) :
+            //     Utils.toIndex(size, i, lineIndex)
+            //   if (minedGrids[index].type !== -1) {
+            //     destroyGrid(minedGrids, index)
+            //     unique.add(index)
+            //   }
+            // }
+            // console.log('消除整行/列')
+            // break
+
+            case 'L':
+            case 'T':
+            case 'cross':
+              // 直线生成十字炸弹
+              addingWonders.push([group[0], 101])
+              // const crossBomb = genGrid(variety)
+              // crossBomb.type = 101 // 十字炸弹类型
+              // minedGrids[group[0]] = crossBomb
+              // unique.delete(group[0])
+              // console.log('生成十字炸弹')
+              break
+          }
+        }
+
+        group.forEach(index => {
+          if (minedGrids[index].type <= variety) {
+            destroyGrid(minedGrids, index)
+            unique.add(index)
+          }
+        })
+      }
+
+      for (const i of group) {
         const { type } = minedGrids[i]
-        console.log(9999999, minedGrids[i]);
-
         destroyGrid(minedGrids, i)
+
         if (type === 100) {
-          doExplode(minedGrids, [i]).forEach(j => addingBlocks.add(j))
+          doExplode(minedGrids, [i]).forEach(j => moreToDestroy.add(j))
         } else if (type === 101) {
-          doCross(minedGrids, [i]).forEach(j => addingBlocks.add(j))
+          doCross(minedGrids, [i]).forEach(j => moreToDestroy.add(j))
         }
         else if (type !== -1) {
           unique.add(i)
         }
       }
 
-      // if (pos.length === 4 && grids[pos[0]].type !== 100) {
-      //   const TNT = genGrid(variety)
-      //   TNT.type = 100
-      //   minedGrids[pos[0]] = TNT
-      //   unique.delete(pos[0])
-      // }
     }
 
 
-    console.log(addingBlocks);
-
-    for (const i of addingBlocks) {
+    for (const i of moreToDestroy) {
       const { type } = minedGrids[i]
       if (type >= 100) {
         withinWonders.add(i)
       }
-      else {
+      else if (type !== -1) {
         destroyGrid(minedGrids, i)
         unique.add(i)
       }
+    }
+
+
+    // 替换部分方块为TNT或下界之星
+    for (let [index, type] of addingWonders) {
+      const grid = genGrid(variety)
+      grid.type = type
+      minedGrids[index] = grid
+      unique.delete(index)
     }
 
     const matchedBlocksFlat = [...unique]
@@ -336,6 +357,31 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
       })
     }
   </div >
+}
+
+
+// 辅助函数：判断形状类型
+function getShapeType(pos: number[], size: number): 'line' | 'L' | 'T' | 'cross' {
+  // 获取所有点的坐标
+  const points = pos.map(p => Utils.getXY(p, size))
+
+  // 检查是否为直线
+  const isLine = Utils.checkIsLine(points)
+  if (isLine) return 'line'
+
+  // 检查是否为L形
+  const isL = Utils.checkIsL(points)
+  if (isL) return 'L'
+
+  // 检查是否为T形
+  const isT = Utils.checkIsT(points)
+  if (isT) return 'T'
+
+  // 检查是否为十字形
+  const isCross = Utils.checkIsCross(points)
+  if (isCross) return 'cross'
+
+  return 'line' // 默认返回直线
 }
 
 export default Underground

@@ -153,15 +153,16 @@ export function findMatch3(
 function isInBoundary(i: number, size: number) {
   return i >= 0 && i < size
 }
+
 export function findSquare(grids: GridData[], startIndex: number) {
   const size = grids.length ** .5
-  const { type } = grids[startIndex]
   const dir = [
     [-1, -1],
     [-1, 1],
     [1, -1],
     [1, 1]
   ]
+
   const [row, col] = Utils.getXY(startIndex, size)
 
   for (const [d1, d2] of dir) {
@@ -176,7 +177,7 @@ export function findSquare(grids: GridData[], startIndex: number) {
         Utils.toIndex(size, row, c)
       ]
 
-      if (res.every(i => grids[i].type === type)) {
+      if (isAllSameType(grids, res)) {
         return res
       }
     }
@@ -245,4 +246,13 @@ export function findColIndexes(startIndex: number, size: number) {
       res.push(i * size + col)
   }
   return res
+}
+
+export function isAllSameType(grids: GridData[], indexes: number[]) {
+  const type = grids[indexes[0]].type
+  for (let i = 1; i < indexes.length; i++) {
+    if (grids[indexes[i]].type !== type)
+      return false
+  }
+  return true
 }

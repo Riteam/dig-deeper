@@ -119,7 +119,7 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
       }
       setTimeout(() => {
         callAnimateEnd(index)
-      }, 70);
+      }, 80);
     }
 
   }, [type])
@@ -127,7 +127,7 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
 
   // 特殊道具出现动画
   useLayoutEffect(() => {
-    if (type === 100 && !showAnimationPlayed.current) {
+    if (type >= 100 && !showAnimationPlayed.current) {
       showAnimationPlayed.current = true
       showUp(node.current)
         .finished
