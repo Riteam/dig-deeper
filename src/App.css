@@ -57,3 +57,16 @@ h1 {
   pointer-events: none;
   z-index: 100;
 }
+
+.callingCard {
+  float: right;
+  color: #fff;
+  text-align: right;
+  font-weight: bold;
+  padding: 20px;
+}
+.callingCard a {
+  text-decoration: underline;
+  color: inherit;
+  font-weight: normal;
+}

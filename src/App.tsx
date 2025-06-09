@@ -36,7 +36,7 @@ const scoreCalculator = (countAtOnce: number) => {
 // 初始化
 const defaultGrids = genGrids(Config.Size, Config.Variety)
 console.log('Generated grids:', defaultGrids);
-// defaultGrids[27].type = 101
+defaultGrids[27].type = 100
 
 // ？？？
 const MemoUnderground = memo(Underground)
@@ -143,6 +143,10 @@ function App() {
 
   return (
     <>
+    <div className='callingCard'>
+      <p>Github: <a href="https://github.com/Riteam/miner">🔗 Click Here!</a></p>
+      <p>Author: Jrc</p>
+    </div>
       <h1>
         {score} <span>+{addingScore}</span>
         {multiple > 1 ? <span>x {multiple}</span> : null}
