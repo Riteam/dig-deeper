@@ -1,6 +1,7 @@
-import { useRef, useEffect, useContext, useCallback } from "react";
+import { useRef, useEffect, useContext } from "react";
 import { AnimateEndContext } from './App.tsx'
 import style from "./Burst.module.css";
+import mojs from "@mojs/core";
 /**
  * Usage:
  * import MojsExample from './MojsExample';

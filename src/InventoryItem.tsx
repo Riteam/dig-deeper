@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import style from './Inventory.module.css'
 import mojs from '@mojs/core'
 import Bus from './assets/js/bus'

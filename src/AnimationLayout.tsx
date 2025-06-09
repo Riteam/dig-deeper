@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
-import Config from "./assets/js/config"
+import Config from "./assets/js/config";
 import mojs from "@mojs/core";
-import Bus from './assets/js/bus'
+import Bus from './assets/js/bus';
 
-const { Size, Variety } = Config
+const { Variety } = Config;
 
 let Layout: HTMLDivElement | null = null
 const usedBurst = new Map()
@@ -69,6 +69,34 @@ export function BoomAt(rect: DOMRect) {
   })
 
   e.play()
+}
+
+// const crossCache = []
+export function CrossAt(rect: DOMRect) {
+  const { x, y, width, height } = rect
+  if (!Layout) return
+  const iRect = Layout?.getBoundingClientRect()
+  const offsetX = x - iRect.x + width / 2
+  const offsetY = y - iRect.y + height / 2
+  const a = new mojs.Shape({
+    parent: Layout,
+    x: offsetX,
+    y: offsetY,
+    shape: 'cross',     // shape 'circle' is default
+    radius: { 1: 500 },           // shape radius
+    strokeWidth: { 1: 24 },            // width of the stroke
+    stroke: '#fff',
+    duration: 100,
+  })
+    .then({
+      radius: 400,
+      opacity: { 1: .4 },
+      strokeWidth: { 24: 1 },
+      duration: 300,
+      easing: mojs.easing.ease.out,
+      isShowEnd: false,
+    });
+  a.replay()
 }
 
 for (let i = 0; i < Variety; i++) {

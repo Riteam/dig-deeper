@@ -5,7 +5,6 @@ import Inventory from './Inventory';
 import Config from "./assets/js/config"
 import { checkGrids, genGrids, shuffle, type GridData } from './assets/js/GridsMethods'
 import AnimationLayout from "./AnimationLayout";
-import Utils from './assets/js/utils';
 
 
 export type snapshot = {
@@ -37,6 +36,7 @@ const scoreCalculator = (countAtOnce: number) => {
 // 初始化
 const defaultGrids = genGrids(Config.Size, Config.Variety)
 console.log('Generated grids:', defaultGrids);
+// defaultGrids[27].type = 101
 
 // ？？？
 const MemoUnderground = memo(Underground)
@@ -48,7 +48,6 @@ const AnimateEndContext = createContext((_index: number) => { })
 let playTimer = 0
 
 function App() {
-  console.log(Utils.isSquareShape);
 
   // 总分
   const [score, setScore] = useState(0)

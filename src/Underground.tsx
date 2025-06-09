@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import Grid from './Grid'
 import style from './Underground.module.css'
 import Utils from "./assets/js/utils"
@@ -104,7 +104,7 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
   }
 
 
-  const doCross = (grids: GridData[], starsIndexes: number[]) => {
+  const doCross = (starsIndexes: number[]) => {
     const destroyedIndexes = new Set<number>()
 
     for (const i of starsIndexes) {
@@ -149,7 +149,6 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
 
     for (const group of matchedGroups) {
       // 检查是否所有方块类型相同
-      console.log(Utils.isSquareShape);
       const allSameType = isAllSameType(minedGrids, group)
 
       // 检测特殊形状，在破坏后添加神奇道具
@@ -173,7 +172,6 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
         else if (group.length > 4) {
           // 判断形状
           const shape = getShapeType(group, size)
-          console.log(99999999, shape);
 
           switch (shape) {
             case 'line':
@@ -224,7 +222,7 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
         if (type === 100) {
           doExplode(minedGrids, [i]).forEach(j => moreToDestroy.add(j))
         } else if (type === 101) {
-          doCross(minedGrids, [i]).forEach(j => moreToDestroy.add(j))
+          doCross([i]).forEach(j => moreToDestroy.add(j))
         }
         else if (type !== -1) {
           unique.add(i)
@@ -281,7 +279,7 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
     // }
 
     // 遍历每[列]，确定底部坐标，从底部开始往上数
-    const colsSet = Utils.range(1, 8)
+    const colsSet = Utils.range(1, size)
     const changedIndex: number[] = []
 
     for (const i of colsSet) {
@@ -341,9 +339,10 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
     // 未选
     else setSelected(index);
   }
-
-
-  return <div className={style.Underground}>
+  return <div className={style.Underground} style={{
+    gridTemplateColumns: `repeat(${size}, 64px)`,
+    gridTemplateRows: `repeat(${size}, 64px)`
+  }}>
     {
       grids.map((data, idx) => {
         return (

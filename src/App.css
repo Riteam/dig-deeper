@@ -7,6 +7,7 @@
   background-size: 64px, 64px;
   background-repeat: repeat-x, repeat;
   background-position: top left, 64px 64px;
+  overflow: hidden;
 }
 
 h1 {

@@ -34,8 +34,8 @@ const Utils = {
   // 检查是否为直线
   checkIsLine(points: [number, number][]): boolean {
     const [x1, y1] = points[0]
-    const isHorizontal = points.every(([x, y]) => y === y1)
-    const isVertical = points.every(([x, y]) => x === x1)
+    const isHorizontal = points.every(([_, y]) => y === y1)
+    const isVertical = points.every(([x]) => x === x1)
     return isHorizontal || isVertical
   },
 

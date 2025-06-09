@@ -4,7 +4,7 @@ import Config from './assets/js/config'
 import style from './Grid.module.css'
 import Utils from "./assets/js/utils"
 import Bus from "./assets/js/bus"
-import { BoomAt } from './AnimationLayout.tsx'
+import { BoomAt, CrossAt } from './AnimationLayout.tsx'
 
 const { getXY } = Utils
 const { Ores } = Config
@@ -115,6 +115,9 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
         Bus.emit('mined_ore_' + oreType.current, rect)
         if (oreType.current === 100) {
           BoomAt(rect)
+        }
+        if (oreType.current === 101) {
+          CrossAt(rect)
         }
       }
       setTimeout(() => {
