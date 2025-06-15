@@ -157,7 +157,7 @@ function Grid({ type, selected, index, initPos, onGridClick }: GridProps) {
       onClick={() => onGridClick(index)}
       ref={node}
     >
-      {index}
+      {/* {index} */}
       {type === 101 ? <img className={style.netherStartGlow} src={icon} /> : null}
       {icon ? <img src={icon} /> : null}
     </div>

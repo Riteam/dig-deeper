@@ -143,10 +143,10 @@ function App() {
 
   return (
     <>
-    <div className='callingCard'>
-      <p>Github: <a href="https://github.com/Riteam/miner">🔗 Click Here!</a></p>
-      <p>Author: Jrc</p>
-    </div>
+      <div className='callingCard'>
+        <p>Github: <a href="https://github.com/Riteam/miner">🔗 Click Here!</a></p>
+        <p>Made by Jrc</p>
+      </div>
       <h1>
         {score} <span>+{addingScore}</span>
         {multiple > 1 ? <span>x {multiple}</span> : null}

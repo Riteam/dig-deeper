@@ -245,7 +245,7 @@ function Underground({ grids, selectable, saveSnapshot }: UndergroundProps) {
 
 
     // 替换部分方块为TNT或下界之星
-    for (let [index, type] of addingWonders) {
+    for (const [index, type] of addingWonders) {
       const grid = genGrid(variety)
       grid.type = type
       minedGrids[index] = grid
